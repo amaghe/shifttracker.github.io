@@ -1,0 +1,1 @@
+Make the calander days selectable and the shift days dynamic. , Make the base salary dynamic to update value and the shift calander for full year 
