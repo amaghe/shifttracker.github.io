@@ -76,7 +76,7 @@
                     <div class="bg-white p-3 rounded-lg shadow">
                         <p class="text-sm text-gray-500">Base Salary</p>
                         <div class="flex items-center">
-                            <span class="mr-1">$</span>
+                            <span class="mr-1">SEK</span>
                             <input id="baseSalaryInput" type="number" value="42000" min="0" step="1000" 
                                    class="font-bold text-lg w-24 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
                         </div>
@@ -183,6 +183,10 @@
                                 <p class="text-sm text-gray-500">Holidays</p>
                                 <p class="font-bold" id="holidaysCount">0</p>
                             </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Base Salary</p>
+                                <p class="font-bold" id="baseSalaryDisplay">42,000 SEK</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -191,15 +195,15 @@
                     <h3 class="font-medium text-gray-700 mb-2">Hours Breakdown</h3>
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 1 Hours (Weekdays)</span>
+                            <span class="text-sm">Rate 1 Hours (Mon-Fri 18-24)</span>
                             <span class="font-medium" id="rate1Hours">0</span>
                         </div>
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 2 Hours (Mon-Sat)</span>
+                            <span class="text-sm">Rate 2 Hours (Mon-Sat 0-7)</span>
                             <span class="font-medium" id="rate2Hours">0</span>
                         </div>
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 3 Hours (Sat/Sun)</span>
+                            <span class="text-sm">Rate 3 Hours (Sat 7-24 & Sun)</span>
                             <span class="font-medium" id="rate3Hours">0</span>
                         </div>
                         <div class="flex justify-between">
@@ -210,28 +214,28 @@
                 </div>
 
                 <div>
-                    <h3 class="font-medium text-gray-700 mb-2">Compensation</h3>
+                    <h3 class="font-medium text-gray-700 mb-2">Compensation (SEK)</h3>
                     <div class="bg-green-50 p-4 rounded-lg">
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 1 Pay</span>
-                            <span class="font-medium" id="rate1Pay">$0.00</span>
+                            <span class="text-sm">Rate 1 Pay (÷600)</span>
+                            <span class="font-medium" id="rate1Pay">0 SEK</span>
                         </div>
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 2 Pay</span>
-                            <span class="font-medium" id="rate2Pay">$0.00</span>
+                            <span class="text-sm">Rate 2 Pay (÷400)</span>
+                            <span class="font-medium" id="rate2Pay">0 SEK</span>
                         </div>
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 3 Pay</span>
-                            <span class="font-medium" id="rate3Pay">$0.00</span>
+                            <span class="text-sm">Rate 3 Pay (÷300)</span>
+                            <span class="font-medium" id="rate3Pay">0 SEK</span>
                         </div>
                         <div class="flex justify-between mb-3">
-                            <span class="text-sm">Holiday Pay</span>
-                            <span class="font-medium" id="holidayPay">$0.00</span>
+                            <span class="text-sm">Holiday Pay (÷150)</span>
+                            <span class="font-medium" id="holidayPay">0 SEK</span>
                         </div>
                         <div class="border-t pt-3">
                             <div class="flex justify-between">
                                 <span class="font-semibold">Total</span>
-                                <span class="font-bold text-green-700" id="totalPay">$0.00</span>
+                                <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
                             </div>
                         </div>
                     </div>
@@ -246,7 +250,7 @@
                 <canvas id="hoursChart" height="300"></canvas>
             </div>
             <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Compensation</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Compensation (SEK)</h2>
                 <canvas id="payChart" height="300"></canvas>
             </div>
         </div>
@@ -265,7 +269,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate 2 Hours</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate 3 Hours</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pay</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pay (SEK)</th>
                             </tr>
                         </thead>
                         <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
@@ -300,6 +304,81 @@
             { name: 'November', num: 10 },
             { name: 'December', num: 11 }
         ];
+
+        // Swedish holidays (dates that are always holidays)
+        const fixedHolidays = {
+            '0-1': 'New Year\'s Day',
+            '4-1': 'May 1st',
+            '5-6': 'National Day',
+            '11-24': 'Christmas Eve',
+            '11-25': 'Christmas Day',
+            '11-31': 'New Year\'s Eve',
+            '0-6': 'Epiphany'
+        };
+
+        // Movable holidays (calculated based on year)
+        function getMovableHolidays(year) {
+            // Easter calculation (simplified)
+            const a = year % 19;
+            const b = Math.floor(year / 100);
+            const c = year % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const l = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * l) / 451);
+            const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+            const day = ((h + l - 7 * m + 114) % 31) + 1;
+
+            const easter = new Date(year, month, day);
+            const maundyThursday = new Date(year, month, day - 3);
+            const goodFriday = new Date(year, month, day - 2);
+            const easterMonday = new Date(year, month, day + 1);
+            const ascension = new Date(year, month, day + 39);
+            const pentecost = new Date(year, month, day + 49);
+            const midsummerEve = new Date(year, 5, 19); // Simplified Midsummer Eve (Friday between June 19-25)
+            
+            // Find the Friday between June 19-25 for Midsummer Eve
+            for (let d = 19; d <= 25; d++) {
+                const date = new Date(year, 5, d);
+                if (date.getDay() === 5) {
+                    midsummerEve.setDate(d);
+                    break;
+                }
+            }
+
+            return {
+                '2-maundyThursday': { date: maundyThursday, name: 'Maundy Thursday' },
+                '2-goodFriday': { date: goodFriday, name: 'Good Friday' },
+                '2-easter': { date: easter, name: 'Easter Sunday' },
+                '2-easterMonday': { date: easterMonday, name: 'Easter Monday' },
+                '2-ascension': { date: ascension, name: 'Ascension Day' },
+                '2-pentecost': { date: pentecost, name: 'Pentecost' },
+                '5-midsummerEve': { date: midsummerEve, name: 'Midsummer Eve' }
+            };
+        }
+
+        // Format SEK currency
+        function formatSEK(amount) {
+            return new Intl.NumberFormat('sv-SE', {
+                style: 'currency',
+                currency: 'SEK',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount).replace('kr', 'SEK');
+        }
+
+        // Format SEK without currency symbol
+        function formatSEKPlain(amount) {
+            return new Intl.NumberFormat('sv-SE', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
 
         // Initialize the dashboard
         document.addEventListener('DOMContentLoaded', function() {
@@ -357,6 +436,7 @@
             
             document.getElementById('baseSalaryInput').addEventListener('change', function() {
                 baseSalary = parseFloat(this.value) || 42000;
+                document.getElementById('baseSalaryDisplay').textContent = new Intl.NumberFormat('sv-SE').format(baseSalary) + ' SEK';
                 updateAllCalculations();
                 updateSummary(currentYear, currentMonth);
                 renderDataTable();
@@ -449,7 +529,7 @@
                 
                 let tooltipText = `${monthName} ${day}, ${year} (${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dayOfWeek]})`;
                 if (isShiftDay) tooltipText += "\nShift Day";
-                if (isHoliday) tooltipText += "\nHoliday";
+                if (isHoliday) tooltipText += `\n${getHolidayName(year, monthNum, day)}`;
                 
                 tooltip.innerHTML = `
                     ${day}
@@ -469,29 +549,46 @@
 
         // Check if a date is a holiday
         function isHolidayDate(year, monthNum, day) {
-            // New Year's Day
-            if (monthNum === 0 && day === 1) return true;
+            // Check fixed holidays
+            const fixedKey = `${monthNum}-${day}`;
+            if (fixedHolidays[fixedKey]) {
+                return true;
+            }
             
-            // Christmas Eve and Christmas Day
-            if (monthNum === 11 && (day === 24 || day === 25)) return true;
-            
-            // New Year's Eve
-            if (monthNum === 11 && day === 31) return true;
-            
-            // July 4th (Independence Day)
-            if (monthNum === 6 && day === 4) return true;
-            
-            // Thanksgiving (4th Thursday of November)
-            if (monthNum === 10) {
-                const date = new Date(year, monthNum, day);
-                if (date.getDay() === 4) {
-                    // Check if it's the 4th Thursday
-                    const thursdayCount = Math.floor((day - 1) / 7) + 1;
-                    if (thursdayCount === 4) return true;
+            // Check movable holidays
+            const movableHolidays = getMovableHolidays(year);
+            for (const key in movableHolidays) {
+                const holiday = movableHolidays[key];
+                if (holiday.date.getFullYear() === year && 
+                    holiday.date.getMonth() === monthNum && 
+                    holiday.date.getDate() === day) {
+                    return true;
                 }
             }
             
             return false;
+        }
+
+        // Get holiday name for a date
+        function getHolidayName(year, monthNum, day) {
+            // Check fixed holidays
+            const fixedKey = `${monthNum}-${day}`;
+            if (fixedHolidays[fixedKey]) {
+                return fixedHolidays[fixedKey];
+            }
+            
+            // Check movable holidays
+            const movableHolidays = getMovableHolidays(year);
+            for (const key in movableHolidays) {
+                const holiday = movableHolidays[key];
+                if (holiday.date.getFullYear() === year && 
+                    holiday.date.getMonth() === monthNum && 
+                    holiday.date.getDate() === day) {
+                    return holiday.name;
+                }
+            }
+            
+            return 'Holiday';
         }
 
         // Toggle shift day status
@@ -528,34 +625,33 @@
                 }
             }
             
-            // Calculate weekend days (Saturdays and Sundays)
-            let weekendDays = 0;
-            for (let day = 1; day <= daysInMonth; day++) {
+            // Calculate hours according to the new rules
+            let rate1Hours = 0; // Mon-Fri 18-24 (÷600)
+            let rate2Hours = 0; // Mon-Sat 0-7 (÷400)
+            let rate3Hours = 0; // Sat 7-24 & Sun (÷300)
+            let holidayHours = 0; // Holiday hours (÷150)
+            
+            shiftDays.forEach(day => {
                 const date = new Date(year, monthNum, day);
-                if (date.getDay() === 0 || date.getDay() === 6) {
-                    weekendDays++;
+                const dayOfWeek = date.getDay();
+                const isHoliday = isHolidayDate(year, monthNum, day);
+                
+                if (isHoliday) {
+                    // Holiday hours (÷150)
+                    holidayHours += 11; // Full day compensation for holidays
+                } else if (dayOfWeek === 0) {
+                    // Sunday (÷300)
+                    rate3Hours += 11; // Full day compensation for Sundays
+                } else if (dayOfWeek === 6) {
+                    // Saturday (÷300 for 7-24, ÷400 for 0-7)
+                    rate2Hours += 6; // 0-7 hours
+                    rate3Hours += 5; // 7-24 hours
+                } else {
+                    // Weekday (Mon-Fri)
+                    rate1Hours += 5; // 18-24 hours (÷600)
+                    rate2Hours += 6; // 0-7 hours (÷400)
                 }
-            }
-            
-            // Calculate hours
-            const rate1Hours = shiftDays.filter(day => {
-                const date = new Date(year, monthNum, day);
-                return date.getDay() !== 0 && date.getDay() !== 6 && !isHolidayDate(year, monthNum, day); // Weekdays
-            }).length * 5;
-            
-            const rate2Hours = shiftDays.filter(day => {
-                const date = new Date(year, monthNum, day);
-                return date.getDay() !== 0 && !isHolidayDate(year, monthNum, day); // Monday-Saturday
-            }).length * 6;
-            
-            const rate3Hours = shiftDays.filter(day => {
-                const date = new Date(year, monthNum, day);
-                return (date.getDay() === 0 || date.getDay() === 6) && !isHolidayDate(year, monthNum, day); // Saturday/Sunday
-            }).length * 11;
-            
-            const holidayHours = shiftDays.filter(day => {
-                return isHolidayDate(year, monthNum, day);
-            }).length * 11;
+            });
             
             // Calculate pay
             const rate1 = baseSalary / 600;
@@ -603,15 +699,16 @@
             document.getElementById('currentMonthDisplay').textContent = `${monthName} ${year}`;
             document.getElementById('shiftDaysCount').textContent = monthData.shiftDays;
             document.getElementById('holidaysCount').textContent = monthData.holidays;
+            document.getElementById('baseSalaryDisplay').textContent = new Intl.NumberFormat('sv-SE').format(baseSalary) + ' SEK';
             document.getElementById('rate1Hours').textContent = monthData.rate1Hours;
             document.getElementById('rate2Hours').textContent = monthData.rate2Hours;
             document.getElementById('rate3Hours').textContent = monthData.rate3Hours;
             document.getElementById('holidayHours').textContent = monthData.holidayHours;
-            document.getElementById('rate1Pay').textContent = `$${monthData.rate1Pay.toFixed(2)}`;
-            document.getElementById('rate2Pay').textContent = `$${monthData.rate2Pay.toFixed(2)}`;
-            document.getElementById('rate3Pay').textContent = `$${monthData.rate3Pay.toFixed(2)}`;
-            document.getElementById('holidayPay').textContent = `$${monthData.holidayPay.toFixed(2)}`;
-            document.getElementById('totalPay').textContent = `$${monthData.totalPay.toFixed(2)}`;
+            document.getElementById('rate1Pay').textContent = formatSEKPlain(monthData.rate1Pay) + ' SEK';
+            document.getElementById('rate2Pay').textContent = formatSEKPlain(monthData.rate2Pay) + ' SEK';
+            document.getElementById('rate3Pay').textContent = formatSEKPlain(monthData.rate3Pay) + ' SEK';
+            document.getElementById('holidayPay').textContent = formatSEKPlain(monthData.holidayPay) + ' SEK';
+            document.getElementById('totalPay').textContent = formatSEKPlain(monthData.totalPay) + ' SEK';
         }
 
         // Render data table
@@ -630,7 +727,7 @@
                     <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
-                    <td class="px-6 py-4 whitespace-nowrap font-semibold">$${monthData.totalPay.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap font-semibold">${formatSEKPlain(monthData.totalPay)} SEK</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -692,12 +789,12 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    return context.dataset.label + ': $' + context.raw.toFixed(2);
+                                    return context.dataset.label + ': ' + formatSEK(context.raw);
                                 },
                                 afterBody: function(context) {
                                     const dataIndex = context[0].dataIndex;
                                     const monthData = getMonthData(currentYear, dataIndex);
-                                    return `Total Pay: $${monthData.totalPay.toFixed(2)}`;
+                                    return `Total Pay: ${formatSEK(monthData.totalPay)}`;
                                 }
                             }
                         }
@@ -711,11 +808,11 @@
                             beginAtZero: true,
                             title: {
                                 display: true,
-                                text: 'Dollars ($)'
+                                text: 'SEK'
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return '$' + value.toLocaleString();
+                                    return formatSEK(value);
                                 }
                             }
                         }
@@ -730,25 +827,25 @@
                 labels: months.map(m => m.name),
                 datasets: [
                     {
-                        label: 'Rate 1 Hours',
+                        label: 'Rate 1 Hours (÷600)',
                         data: months.map(m => getMonthData(currentYear, m.num).rate1Hours),
                         backgroundColor: '#3b82f6',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Rate 2 Hours',
+                        label: 'Rate 2 Hours (÷400)',
                         data: months.map(m => getMonthData(currentYear, m.num).rate2Hours),
                         backgroundColor: '#6366f1',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Rate 3 Hours',
+                        label: 'Rate 3 Hours (÷300)',
                         data: months.map(m => getMonthData(currentYear, m.num).rate3Hours),
                         backgroundColor: '#8b5cf6',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Holiday Hours',
+                        label: 'Holiday Hours (÷150)',
                         data: months.map(m => getMonthData(currentYear, m.num).holidayHours),
                         backgroundColor: '#ef4444',
                         stack: 'Stack 0'
@@ -771,11 +868,11 @@
         // Export data function
         function exportData() {
             // Create CSV content
-            let csvContent = "Year,Month,Shift Days,Rate 1 Hours,Rate 2 Hours,Rate 3 Hours,Holiday Hours,Rate 1 Pay,Rate 2 Pay,Rate 3 Pay,Holiday Pay,Total Pay\n";
+            let csvContent = "Year,Month,Shift Days,Rate 1 Hours,Rate 2 Hours,Rate 3 Hours,Holiday Hours,Rate 1 Pay (SEK),Rate 2 Pay (SEK),Rate 3 Pay (SEK),Holiday Pay (SEK),Total Pay (SEK)\n";
             
             months.forEach(month => {
                 const monthData = getMonthData(currentYear, month.num);
-                csvContent += `${currentYear},${monthData.month},${monthData.shiftDays},${monthData.rate1Hours},${monthData.rate2Hours},${monthData.rate3Hours},${monthData.holidayHours},${monthData.rate1Pay.toFixed(2)},${monthData.rate2Pay.toFixed(2)},${monthData.rate3Pay.toFixed(2)},${monthData.holidayPay.toFixed(2)},${monthData.totalPay.toFixed(2)}\n`;
+                csvContent += `${currentYear},${monthData.month},${monthData.shiftDays},${monthData.rate1Hours},${monthData.rate2Hours},${monthData.rate3Hours},${monthData.holidayHours},${formatSEKPlain(monthData.rate1Pay)},${formatSEKPlain(monthData.rate2Pay)},${formatSEKPlain(monthData.rate3Pay)},${formatSEKPlain(monthData.holidayPay)},${formatSEKPlain(monthData.totalPay)}\n`;
             });
             
             // Create download link
@@ -808,5 +905,5 @@
             }, 2000);
         }
     </script>
-<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=WediBahri/shift-work" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</body>
 </html>
