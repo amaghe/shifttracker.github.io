@@ -69,8 +69,7 @@
         <header class="mb-8">
             <div class="flex justify-between items-center">
                 <div>
-                    <h1 class="text-3xl font-bold text-blue-800">Shift Schedule Dashboard</h1>
-                    <p class="text-gray-600">Dynamic Shift Schedule - 2025</p>
+                    <h1 class="text-3xl font-bold text-blue-800">Dynamic Shift Schedule Dashboard</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="bg-white p-3 rounded-lg shadow">
@@ -99,6 +98,9 @@
                             <option value="2025">2025</option>
                             <option value="2024">2024</option>
                             <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
                         </select>
                         <select id="monthSelect" class="border rounded px-3 py-1">
                             <option value="0">January</option>
@@ -199,47 +201,47 @@
                             <span class="font-medium" id="rate1Hours">0</span>
                         </div>
                         <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 2 Hours (Mon-Sat 0-7)</span>
-                            <span class="font-medium" id="rate2Hours">0</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 3 Hours (Sat 7-24 & Sun)</span>
-                            <span class="font-medium" id="rate3Hours">0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-sm">Holiday Hours</span>
-                            <span class="font-medium" id="holidayHours">0</span>
-                        </div>
-                    </div>
-                </div>
+                            <span class="text-sm">Rate 2 Hours (Mon-Sat 00-07)</span>
+            <span class="font-medium" id="rate2Hours">0</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="text-sm">Rate 3 Hours (Sat 07-24 & Sun)</span>
+            <span class="font-medium" id="rate3Hours">0</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-sm">Holiday Hours</span>
+            <span class="font-medium" id="holidayHours">0</span>
+        </div>
+    </div>
+</div>
 
-                <div>
-                    <h3 class="font-medium text-gray-700 mb-2">Compensation (SEK)</h3>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 1 Pay (÷600)</span>
-                            <span class="font-medium" id="rate1Pay">0 SEK</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 2 Pay (÷400)</span>
-                            <span class="font-medium" id="rate2Pay">0 SEK</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 3 Pay (÷300)</span>
-                            <span class="font-medium" id="rate3Pay">0 SEK</span>
-                        </div>
-                        <div class="flex justify-between mb-3">
-                            <span class="text-sm">Holiday Pay (÷150)</span>
-                            <span class="font-medium" id="holidayPay">0 SEK</span>
-                        </div>
-                        <div class="border-t pt-3">
-                            <div class="flex justify-between">
-                                <span class="font-semibold">Total</span>
-                                <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div>
+    <h3 class="font-medium text-gray-700 mb-2">Compensation (SEK)</h3>
+    <div class="bg-green-50 p-4 rounded-lg">
+        <div class="flex justify-between mb-2">
+            <span class="text-sm">Rate 1 X (Base Salary/600)</span>
+            <span class="font-medium" id="rate1Pay">0 SEK</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="text-sm">Rate 2 X (Base Salary/400)</span>
+            <span class="font-medium" id="rate2Pay">0 SEK</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="text-sm">Rate 3 X (Base Salary/300)</span>
+            <span class="font-medium" id="rate3Pay">0 SEK</span>
+        </div>
+        <div class="flex justify-between mb-3">
+            <span class="text-sm">Holiday X (Base Salary/150)</span>
+            <span class="font-medium" id="holidayPay">0 SEK</span>
+        </div>
+        <div class="border-t pt-3">
+            <div class="flex justify-between">
+                <span class="font-semibold">Total</span>
+                <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
+            </div>
+        </div>
+    </div>
+</div>
             </div>
         </div>
 
@@ -340,13 +342,23 @@
             const easterMonday = new Date(year, month, day + 1);
             const ascension = new Date(year, month, day + 39);
             const pentecost = new Date(year, month, day + 49);
-            const midsummerEve = new Date(year, 5, 19); // Simplified Midsummer Eve (Friday between June 19-25)
             
-            // Find the Friday between June 19-25 for Midsummer Eve
+            // Midsummer Eve (Friday between June 19-25)
+            let midsummerEve = new Date(year, 5, 19);
             for (let d = 19; d <= 25; d++) {
                 const date = new Date(year, 5, d);
                 if (date.getDay() === 5) {
-                    midsummerEve.setDate(d);
+                    midsummerEve = date;
+                    break;
+                }
+            }
+            
+            // All Saints' Day (Saturday between October 31 and November 6)
+            let allSaintsDay = new Date(year, 10, 6);
+            for (let d = 31; d <= 36; d++) {
+                const date = new Date(year, 9, d > 31 ? d - 31 : d);
+                if (date.getDay() === 6) {
+                    allSaintsDay = date;
                     break;
                 }
             }
@@ -358,7 +370,8 @@
                 '2-easterMonday': { date: easterMonday, name: 'Easter Monday' },
                 '2-ascension': { date: ascension, name: 'Ascension Day' },
                 '2-pentecost': { date: pentecost, name: 'Pentecost' },
-                '5-midsummerEve': { date: midsummerEve, name: 'Midsummer Eve' }
+                '5-midsummerEve': { date: midsummerEve, name: 'Midsummer Eve' },
+                '10-allSaintsDay': { date: allSaintsDay, name: 'All Saints\' Day' }
             };
         }
 
@@ -460,7 +473,7 @@
 
         // Initialize empty schedule for all years and months
         function initializeSchedule() {
-            const years = [2024, 2025, 2026];
+            const years = [2024, 2025, 2026, 2027, 2028, 2029];
             schedule = {};
             
             years.forEach(year => {
