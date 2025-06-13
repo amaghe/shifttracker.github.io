@@ -57,4 +57,4 @@ Each selected day adds corresponding hour credits to its category.
 ## 📦 File Structure
 
 ```bash
-Shift_Schedule_Dashboard.html   # Main HTML file with embedded JS, CSS
+Shift_Schedule_Dashboard.html  # Main HTML file with embedded JS and CSS
