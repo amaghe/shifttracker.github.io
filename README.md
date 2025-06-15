@@ -43,12 +43,12 @@ A dynamic, interactive web-based dashboard for managing employee shift schedules
 - Weekends are styled differently (Saturday, Sunday).
 
 ### 🧮 Compensation Rules
-| Category     | Time Range        | Multiplier (based on base salary) |
-|--------------|-------------------|-----------------------------------|
-| Rate 1       | Mon–Fri 18:00–24:00 | ÷ 600                            |
-| Rate 2       | Mon–Sat 00:00–07:00 | ÷ 400                            |
-| Rate 3       | Sat 07:00–24:00, Sun | ÷ 300                            |
-| Holiday      | Full shift          | ÷ 150                            |
+| Category | Time Range           | Multiplier (based on base salary) |
+|----------|----------------------|-----------------------------------|
+| Rate 1   | Mon–Fri 18:00–24:00  | ÷ 600                             |
+| Rate 2   | Mon–Sat 00:00–07:00  | ÷ 400                             |
+| Rate 3   | Sat 07:00–24:00, Sun | ÷ 300                             |
+| Holiday  | Full shift           | ÷ 150                             |
 
 Each selected day adds corresponding hour credits to its category.
 
