@@ -61,862 +61,1379 @@
         .selected-day {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
         }
+        @media (max-width: 768px) {
+            .tooltip .tooltip-text {
+                display: none;
+            }
+        }
+        .shift-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .shift-form {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .template-btn {
+            background-color: #dbeafe;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 120px;
+        }
+        .template-btn:hover {
+            background-color: #bfdbfe;
+        }
+        .template-btn.selected {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #2563eb;
+        }
+        .template-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-link.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .nav-link:not(.active):hover {
+            background-color: #e5e7eb;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <header class="mb-8">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center flex-wrap gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-blue-800">Dynamic Shift Schedule Dashboard</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white p-3 rounded-lg shadow">
-                        <p class="text-sm text-gray-500">Base Salary</p>
-                        <div class="flex items-center">
-                            <span class="mr-1">SEK</span>
-                            <input id="baseSalaryInput" type="number" value="42000" min="0" step="1000" 
-                                   class="font-bold text-lg w-24 border-b border-gray-300 focus:border-blue-500 focus:outline-none">
-                        </div>
-                    </div>
-                    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
-                        <i class="fas fa-file-export mr-2"></i> Export Data
-                    </button>
+                    <h1 class="text-3xl font-bold text-blue-800">Shift Schedule Dashboard</h1>
+                    <p class="text-gray-600">Dynamic Shift Schedule - <span id="current-year">2025</span></p>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Calendar Section -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-semibold text-gray-800">Shift Calendar</h2>
-                    <div class="flex space-x-2">
-                        <select id="yearSelect" class="border rounded px-3 py-1 mr-2">
-                            <option value="2025">2025</option>
-                            <option value="2024">2024</option>
-                            <option value="2026">2026</option>
-                            <option value="2027">2027</option>
-                            <option value="2028">2028</option>
-                            <option value="2029">2029</option>
-                        </select>
-                        <select id="monthSelect" class="border rounded px-3 py-1">
-                            <option value="0">January</option>
-                            <option value="1">February</option>
-                            <option value="2">March</option>
-                            <option value="3">April</option>
-                            <option value="4">May</option>
-                            <option value="5">June</option>
-                            <option value="6">July</option>
-                            <option value="7">August</option>
-                            <option value="8">September</option>
-                            <option value="9">October</option>
-                            <option value="10">November</option>
-                            <option value="11">December</option>
-                        </select>
-                        <button id="prevMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button id="nextMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mb-4 flex justify-between">
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Sun</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Mon</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Tue</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Wed</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Thu</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Fri</div>
-                    <div class="text-center w-full py-2 text-sm font-medium text-gray-500">Sat</div>
-                </div>
-
-                <div id="calendarGrid" class="grid grid-cols-7 gap-2">
-                    <!-- Calendar will be generated here by JavaScript -->
-                </div>
-
-                <div class="mt-6 flex flex-wrap gap-3">
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
-                        <span class="text-sm">Shift Day</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
-                        <span class="text-sm">Holiday</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded-full bg-gray-200 mr-2"></div>
-                        <span class="text-sm">Weekend</span>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></div>
-                        <span class="text-sm">Regular Day</span>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex space-x-3">
-                    <button id="clearMonthBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">
-                        <i class="fas fa-eraser mr-2"></i> Clear Month
-                    </button>
-                    <button id="saveChangesBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                        <i class="fas fa-save mr-2"></i> Save Changes
-                    </button>
-                </div>
+        <!-- Navigation -->
+        <div class="mb-6">
+            <div class="flex flex-wrap gap-2 bg-white rounded-lg shadow p-2">
+                <div class="nav-link active" data-page="dashboard">Dashboard</div>
+                <div class="nav-link" data-page="overview">Overview</div>
+                <div class="nav-link" data-page="export">Data Export</div>
             </div>
+        </div>
 
-            <!-- Summary Section -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-6">Monthly Summary</h2>
-                
-                <div class="mb-6">
-                    <h3 class="font-medium text-gray-700 mb-2">Selected Month</h3>
-                    <div id="monthSummary" class="bg-blue-50 p-4 rounded-lg">
-                        <p class="text-lg font-semibold text-blue-800" id="currentMonthDisplay">January 2025</p>
-                        <div class="grid grid-cols-2 gap-4 mt-3">
-                            <div>
-                                <p class="text-sm text-gray-500">Shift Days</p>
-                                <p class="font-bold" id="shiftDaysCount">0</p>
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page active">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Calendar Section -->
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                        <h2 class="text-xl font-semibold text-gray-800">Calendar</h2>
+                        <div class="flex space-x-2 flex-wrap gap-2">
+                            <select id="yearSelect" class="border rounded px-3 py-1 mr-2">
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                            </select>
+                            <select id="monthSelect" class="border rounded px-3 py-1">
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                            <button id="prevMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button id="nextMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 grid grid-cols-7 gap-2">
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Sun</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Mon</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Tue</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Wed</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Thu</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Fri</div>
+                        <div class="text-center py-2 text-sm font-medium text-gray-500">Sat</div>
+                    </div>
+
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                        <!-- Calendar will be generated here by JavaScript -->
+                    </div>
+
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
+                            <span class="text-sm">Shift Day</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
+                            <span class="text-sm">Holiday</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-gray-200 mr-2"></div>
+                            <span class="text-sm">Weekend</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></div>
+                            <span class="text-sm">Regular Day</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex space-x-3 flex-wrap gap-3">
+                        <button id="clearMonthBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">
+                            <i class="fas fa-eraser mr-2"></i> Clear Month
+                        </button>
+                        <button id="saveChangesBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-save mr-2"></i> Save Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Monthly Summary</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-700 mb-2">Selected Month</h3>
+                        <div id="monthSummary" class="bg-blue-50 p-4 rounded-lg">
+                            <p class="text-lg font-semibold text-blue-800" id="currentMonthDisplay">January 2025</p>
+                            <div class="grid grid-cols-2 gap-4 mt-3">
+                                <div>
+                                    <p class="text-sm text-gray-500">Shift Days</p>
+                                    <p class="font-bold" id="shiftDaysCount">0</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Holidays</p>
+                                    <p class="font-bold" id="holidaysCount">0</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-sm text-gray-500">Base Salary (SEK)</p>
+                                    <input id="baseSalaryInput" type="number" value="1000" min="0" step="1000" 
+                                           class="font-bold text-lg w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Holidays</p>
-                                <p class="font-bold" id="holidaysCount">0</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <h3 class="font-medium text-gray-700 mb-2">Hours Breakdown</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Hourly Rate 1 (Mon-Fri 18-24)</span>
+                                <span class="font-medium" id="rate1Hours">0</span>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-500">Base Salary</p>
-                                <p class="font-bold" id="baseSalaryDisplay">42,000 SEK</p>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Hourly Rate 2 (Mon-Sat 00-07)</span>
+                                <span class="font-medium" id="rate2Hours">0</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Hourly Rate 3 (Sat 07-Sun 24)</span>
+                                <span class="font-medium" id="rate3Hours">0</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm">Holiday Hours</span>
+                                <span class="font-medium" id="holidayHours">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-medium text-gray-700 mb-2">Gross compensation (SEK)</h3>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Pay Rate 1 (/600)</span>
+                                <span class="font-medium" id="rate1Pay">0 SEK</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Pay Rate 2 (/400)</span>
+                                <span class="font-medium" id="rate2Pay">0 SEK</span>
+                            </div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-sm">Pay Rate 3 (/300)</span>
+                                <span class="font-medium" id="rate3Pay">0 SEK</span>
+                            </div>
+                            <div class="flex justify-between mb-3">
+                                <span class="text-sm">Holiday Pay (/150)</span>
+                                <span class="font-medium" id="holidayPay">0 SEK</span>
+                            </div>
+                            <div class="border-t pt-3">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold">Total</span>
+                                    <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="mb-6">
-                    <h3 class="font-medium text-gray-700 mb-2">Hours Breakdown</h3>
-                    <div class="bg-gray-50 p-4 rounded-lg">
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 1 Hours (Mon-Fri 18-24)</span>
-                            <span class="font-medium" id="rate1Hours">0</span>
-                        </div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-sm">Rate 2 Hours (Mon-Sat 00-07)</span>
-            <span class="font-medium" id="rate2Hours">0</span>
-        </div>
-        <div class="flex justify-between mb-2">
-            <span class="text-sm">Rate 3 Hours (Sat 07-24 & Sun)</span>
-            <span class="font-medium" id="rate3Hours">0</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="text-sm">Holiday Hours</span>
-            <span class="font-medium" id="holidayHours">0</span>
-        </div>
-    </div>
-</div>
-
-<div>
-    <h3 class="font-medium text-gray-700 mb-2">Compensation (SEK)</h3>
-    <div class="bg-green-50 p-4 rounded-lg">
-        <div class="flex justify-between mb-2">
-            <span class="text-sm">Rate 1 X (Base Salary/600)</span>
-            <span class="font-medium" id="rate1Pay">0 SEK</span>
-        </div>
-        <div class="flex justify-between mb-2">
-            <span class="text-sm">Rate 2 X (Base Salary/400)</span>
-            <span class="font-medium" id="rate2Pay">0 SEK</span>
-        </div>
-        <div class="flex justify-between mb-2">
-            <span class="text-sm">Rate 3 X (Base Salary/300)</span>
-            <span class="font-medium" id="rate3Pay">0 SEK</span>
-        </div>
-        <div class="flex justify-between mb-3">
-            <span class="text-sm">Holiday X (Base Salary/150)</span>
-            <span class="font-medium" id="holidayPay">0 SEK</span>
-        </div>
-        <div class="border-t pt-3">
-            <div class="flex justify-between">
-                <span class="font-semibold">Total</span>
-                <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
-            </div>
-        </div>
-    </div>
-</div>
             </div>
         </div>
 
-        <!-- Charts Section -->
-        <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Hours Breakdown</h2>
-                <canvas id="hoursChart" height="300"></canvas>
+        <!-- Overview Page -->
+        <div id="overview-page" class="page">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Hours Breakdown</h2>
+                    <canvas id="hoursChart" height="300"></canvas>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Gross Compensation</h2>
+                    <canvas id="payChart" height="300"></canvas>
+                </div>
             </div>
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Compensation (SEK)</h2>
-                <canvas id="payChart" height="300"></canvas>
-            </div>
-        </div>
 
-        <!-- Data Table -->
-        <div class="mt-8 bg-white rounded-xl shadow-lg overflow-hidden">
-            <div class="p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Detailed Shift Data</h2>
+            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Summary</h2>
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate 1 Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate 2 Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate 3 Hours</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Pay (SEK)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
                             </tr>
                         </thead>
-                        <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                        <tbody id="overviewTableBody" class="bg-white divide-y divide-gray-200">
                             <!-- Data will be populated by JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+        <!-- Data Export Page -->
+        <div id="export-page" class="page">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Export to Payroll</h2>
+                <div class="flex flex-wrap gap-3">
+                    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
+                        <i class="fas fa-file-export mr-2"></i> Export CSV Data
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Detailed Shift Data</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shift Modal -->
+    <div id="shiftModal" class="shift-modal hidden">
+        <div class="shift-form">
+            <h3 class="text-xl font-bold mb-4">Add Shift Hours</h3>
+            <div class="font-medium mb-2">
+                <input type="text" id="shiftDate" class="block text-gray-700 mb-2" readonly>
+            </div>
+            
+            <div class="mb-4">
+                <label class="font-medium mb-2">Select Shift Template</label>
+                
+                <div class="template-group">
+                    <h4 class="font-medium mb-2">Option A</h4>
+                    <div class="flex flex-wrap">
+                        <div class="template-btn" data-template="18:00-00:00">
+                            <div class="font-medium">Evening Shift</div>
+                            <div class="text-sm">18:00 - 00:00 (6h)</div>
+                        </div>
+                        <div class="template-btn" data-template="00:00-05:00">
+                            <div class="font-medium">Night Shift</div>
+                            <div class="text-sm">00:00 - 05:00 (5h)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="template-group">
+                    <h4 class="font-medium mb-2">Option B</h4>
+                    <div class="flex flex-wrap">
+                        <div class="template-btn" data-template="19:00-00:00">
+                            <div class="font-medium">Evening Shift</div>
+                            <div class="text-sm">19:00 - 00:00 (5h)</div>
+                        </div>
+                        <div class="template-btn" data-template="00:00-06:00">
+                            <div class="font-medium">Night Shift</div>
+                            <div class="text-sm">00:00 - 06:00 (6h)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 mt-4">
+                <button id="clearShift" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Clear All Shifts</button>
+                <button id="cancelShift" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg">Cancel</button>
+                <button id="saveShift" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Save Shifts</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Global variables
-        let schedule = {};
-        let currentYear = 2025;
-        let currentMonth = 0; // January
-        let baseSalary = 42000;
-        let hoursChart, payChart;
+        // Use a module pattern to encapsulate functionality
+        const ShiftScheduleApp = (function() {
+            // Private variables
+            let schedule = {};
+            let currentYear = 2025;
+            let currentMonth = 0; // January
+            let baseSalary = 1000;
+            let hoursChart, payChart;
+            let selectedDay = null;
+            let selectedTemplates = [];
+            let currentPage = 'dashboard';
 
-        // Initialize months data
-        const months = [
-            { name: 'January', num: 0 },
-            { name: 'February', num: 1 },
-            { name: 'March', num: 2 },
-            { name: 'April', num: 3 },
-            { name: 'May', num: 4 },
-            { name: 'June', num: 5 },
-            { name: 'July', num: 6 },
-            { name: 'August', num: 7 },
-            { name: 'September', num: 8 },
-            { name: 'October', num: 9 },
-            { name: 'November', num: 10 },
-            { name: 'December', num: 11 }
-        ];
-
-        // Swedish holidays (dates that are always holidays)
-        const fixedHolidays = {
-            '0-1': 'New Year\'s Day',
-            '4-1': 'May 1st',
-            '5-6': 'National Day',
-            '11-24': 'Christmas Eve',
-            '11-25': 'Christmas Day',
-            '11-31': 'New Year\'s Eve',
-            '0-6': 'Epiphany'
-        };
-
-        // Movable holidays (calculated based on year)
-        function getMovableHolidays(year) {
-            // Easter calculation (simplified)
-            const a = year % 19;
-            const b = Math.floor(year / 100);
-            const c = year % 100;
-            const d = Math.floor(b / 4);
-            const e = b % 4;
-            const f = Math.floor((b + 8) / 25);
-            const g = Math.floor((b - f + 1) / 3);
-            const h = (19 * a + b - d - g + 15) % 30;
-            const i = Math.floor(c / 4);
-            const k = c % 4;
-            const l = (32 + 2 * e + 2 * i - h - k) % 7;
-            const m = Math.floor((a + 11 * h + 22 * l) / 451);
-            const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
-            const day = ((h + l - 7 * m + 114) % 31) + 1;
-
-            const easter = new Date(year, month, day);
-            const maundyThursday = new Date(year, month, day - 3);
-            const goodFriday = new Date(year, month, day - 2);
-            const easterMonday = new Date(year, month, day + 1);
-            const ascension = new Date(year, month, day + 39);
-            const pentecost = new Date(year, month, day + 49);
-            
-            // Midsummer Eve (Friday between June 19-25)
-            let midsummerEve = new Date(year, 5, 19);
-            for (let d = 19; d <= 25; d++) {
-                const date = new Date(year, 5, d);
-                if (date.getDay() === 5) {
-                    midsummerEve = date;
-                    break;
-                }
-            }
-            
-            // All Saints' Day (Saturday between October 31 and November 6)
-            let allSaintsDay = new Date(year, 10, 6);
-            for (let d = 31; d <= 36; d++) {
-                const date = new Date(year, 9, d > 31 ? d - 31 : d);
-                if (date.getDay() === 6) {
-                    allSaintsDay = date;
-                    break;
-                }
-            }
-
-            return {
-                '2-maundyThursday': { date: maundyThursday, name: 'Maundy Thursday' },
-                '2-goodFriday': { date: goodFriday, name: 'Good Friday' },
-                '2-easter': { date: easter, name: 'Easter Sunday' },
-                '2-easterMonday': { date: easterMonday, name: 'Easter Monday' },
-                '2-ascension': { date: ascension, name: 'Ascension Day' },
-                '2-pentecost': { date: pentecost, name: 'Pentecost' },
-                '5-midsummerEve': { date: midsummerEve, name: 'Midsummer Eve' },
-                '10-allSaintsDay': { date: allSaintsDay, name: 'All Saints\' Day' }
+            // Swedish holidays (dates that are always holidays)
+            const fixedHolidays = {
+                '0-1': 'New Year\'s Day',
+                '4-1': 'May 1st',
+                '5-6': 'National Day',
+                '11-24': 'Christmas Eve',
+                '11-25': 'Christmas Day',
+                '11-26': 'Boxing Day',
+                '11-31': 'New Year\'s Eve',
+                '0-6': 'Epiphany'
             };
-        }
 
-        // Format SEK currency
-        function formatSEK(amount) {
-            return new Intl.NumberFormat('sv-SE', {
-                style: 'currency',
-                currency: 'SEK',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount).replace('kr', 'SEK');
-        }
+            // Months data
+            const months = [
+                { name: 'January', num: 0 },
+                { name: 'February', num: 1 },
+                { name: 'March', num: 2 },
+                { name: 'April', num: 3 },
+                { name: 'May', num: 4 },
+                { name: 'June', num: 5 },
+                { name: 'July', num: 6 },
+                { name: 'August', num: 7 },
+                { name: 'September', num: 8 },
+                { name: 'October', num: 9 },
+                { name: 'November', num: 10 },
+                { name: 'December', num: 11 }
+            ];
 
-        // Format SEK without currency symbol
-        function formatSEKPlain(amount) {
-            return new Intl.NumberFormat('sv-SE', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(amount);
-        }
-
-        // Initialize the dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize empty schedule for all months
-            initializeSchedule();
-            
-            // Render initial views
-            renderCalendar(currentYear, currentMonth);
-            updateSummary(currentYear, currentMonth);
-            renderDataTable();
-            initCharts();
-            
-            // Event listeners
-            document.getElementById('monthSelect').addEventListener('change', function() {
-                currentMonth = parseInt(this.value);
-                renderCalendar(currentYear, currentMonth);
-                updateSummary(currentYear, currentMonth);
-            });
-            
-            document.getElementById('yearSelect').addEventListener('change', function() {
-                currentYear = parseInt(this.value);
-                renderCalendar(currentYear, currentMonth);
-                updateSummary(currentYear, currentMonth);
-            });
-            
-            document.getElementById('prevMonth').addEventListener('click', function() {
-                if (currentMonth > 0) {
-                    currentMonth--;
-                } else {
-                    currentMonth = 11;
-                    currentYear--;
-                    document.getElementById('yearSelect').value = currentYear;
-                }
-                document.getElementById('monthSelect').value = currentMonth;
-                renderCalendar(currentYear, currentMonth);
-                updateSummary(currentYear, currentMonth);
-            });
-            
-            document.getElementById('nextMonth').addEventListener('click', function() {
-                if (currentMonth < 11) {
-                    currentMonth++;
-                } else {
-                    currentMonth = 0;
-                    currentYear++;
-                    document.getElementById('yearSelect').value = currentYear;
-                }
-                document.getElementById('monthSelect').value = currentMonth;
-                renderCalendar(currentYear, currentMonth);
-                updateSummary(currentYear, currentMonth);
-            });
-            
-            document.getElementById('exportBtn').addEventListener('click', function() {
-                exportData();
-            });
-            
-            document.getElementById('baseSalaryInput').addEventListener('change', function() {
-                baseSalary = parseFloat(this.value) || 42000;
-                document.getElementById('baseSalaryDisplay').textContent = new Intl.NumberFormat('sv-SE').format(baseSalary) + ' SEK';
-                updateAllCalculations();
-                updateSummary(currentYear, currentMonth);
-                renderDataTable();
-                updateCharts();
-            });
-            
-            document.getElementById('clearMonthBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to clear all shift days for this month?')) {
-                    schedule[currentYear][currentMonth] = [];
-                    renderCalendar(currentYear, currentMonth);
-                    updateSummary(currentYear, currentMonth);
-                    renderDataTable();
-                    updateCharts();
-                }
-            });
-            
-            document.getElementById('saveChangesBtn').addEventListener('click', function() {
-                showSuccessMessage('Changes saved successfully!');
-            });
-        });
-
-        // Initialize empty schedule for all years and months
-        function initializeSchedule() {
-            const years = [2024, 2025, 2026, 2027, 2028, 2029];
-            schedule = {};
-            
-            years.forEach(year => {
-                schedule[year] = {};
-                months.forEach(month => {
-                    schedule[year][month.num] = [];
-                });
-            });
-            
-            // Add some sample shift days for 2025
-            schedule[2025][5] = [1, 2, 3, 9, 10, 11, 12, 18, 19, 20, 21, 22, 27, 28, 29, 30]; // June
-            schedule[2025][6] = [1, 7, 8, 9, 10, 16, 17, 18, 19, 20, 25, 26, 27, 28, 29]; // July
-            schedule[2025][7] = [4, 5, 6, 7, 13, 14, 15, 16, 17, 22, 23, 24, 25, 26]; // August
-            schedule[2025][8] = [1, 2, 3, 4, 10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 29, 30]; // September
-            schedule[2025][9] = [1, 2, 8, 9, 10, 11, 12, 17, 18, 19, 20, 21, 27, 28, 29, 30]; // October
-            schedule[2025][10] = [5, 6, 7, 8, 9, 14, 15, 16, 17, 18, 24, 25, 26, 27]; // November
-            schedule[2025][11] = [3, 4, 5, 6, 7, 12, 13, 14, 15, 16, 22, 23, 24, 25, 31]; // December
-        }
-
-        // Render calendar for a specific year and month
-        function renderCalendar(year, monthNum) {
-            const calendarGrid = document.getElementById('calendarGrid');
-            calendarGrid.innerHTML = '';
-            
-            const monthData = getMonthData(year, monthNum);
-            const monthName = months.find(m => m.num === monthNum).name;
-            
-            // Get first day of month and days in month
-            const firstDay = new Date(year, monthNum, 1).getDay(); // 0 = Sunday
-            const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
-            
-            // Add empty cells for days before the first day of the month
-            for (let i = 0; i < firstDay; i++) {
-                const emptyCell = document.createElement('div');
-                emptyCell.className = 'h-16';
-                calendarGrid.appendChild(emptyCell);
-            }
-            
-            // Add cells for each day of the month
-            for (let day = 1; day <= daysInMonth; day++) {
-                const date = new Date(year, monthNum, day);
-                const dayOfWeek = date.getDay();
-                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-                const isShiftDay = schedule[year][monthNum].includes(day);
-                const isHoliday = isHolidayDate(year, monthNum, day);
-                
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day h-16 flex flex-col items-center justify-center rounded-lg border';
-                
-                if (isShiftDay) {
-                    dayElement.classList.add('shift-day');
-                } else if (isHoliday) {
-                    dayElement.classList.add('holiday');
-                } else if (isWeekend) {
-                    dayElement.classList.add('weekend');
-                }
-                
-                dayElement.innerHTML = `
-                    <span class="font-medium">${day}</span>
-                    <span class="text-xs mt-1">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}</span>
-                `;
-                
-                // Add tooltip
-                const tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                
-                let tooltipText = `${monthName} ${day}, ${year} (${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dayOfWeek]})`;
-                if (isShiftDay) tooltipText += "\nShift Day";
-                if (isHoliday) tooltipText += `\n${getHolidayName(year, monthNum, day)}`;
-                
-                tooltip.innerHTML = `
-                    ${day}
-                    <span class="tooltip-text">${tooltipText}</span>
-                `;
-                
-                dayElement.querySelector('span:first-child').replaceWith(tooltip);
-                
-                // Add click event to toggle shift day
-                dayElement.addEventListener('click', function() {
-                    toggleShiftDay(year, monthNum, day);
-                });
-                
-                calendarGrid.appendChild(dayElement);
-            }
-        }
-
-        // Check if a date is a holiday
-        function isHolidayDate(year, monthNum, day) {
-            // Check fixed holidays
-            const fixedKey = `${monthNum}-${day}`;
-            if (fixedHolidays[fixedKey]) {
-                return true;
-            }
-            
-            // Check movable holidays
-            const movableHolidays = getMovableHolidays(year);
-            for (const key in movableHolidays) {
-                const holiday = movableHolidays[key];
-                if (holiday.date.getFullYear() === year && 
-                    holiday.date.getMonth() === monthNum && 
-                    holiday.date.getDate() === day) {
-                    return true;
-                }
-            }
-            
-            return false;
-        }
-
-        // Get holiday name for a date
-        function getHolidayName(year, monthNum, day) {
-            // Check fixed holidays
-            const fixedKey = `${monthNum}-${day}`;
-            if (fixedHolidays[fixedKey]) {
-                return fixedHolidays[fixedKey];
-            }
-            
-            // Check movable holidays
-            const movableHolidays = getMovableHolidays(year);
-            for (const key in movableHolidays) {
-                const holiday = movableHolidays[key];
-                if (holiday.date.getFullYear() === year && 
-                    holiday.date.getMonth() === monthNum && 
-                    holiday.date.getDate() === day) {
-                    return holiday.name;
-                }
-            }
-            
-            return 'Holiday';
-        }
-
-        // Toggle shift day status
-        function toggleShiftDay(year, monthNum, day) {
-            const shiftDays = schedule[year][monthNum];
-            const index = shiftDays.indexOf(day);
-            
-            if (index === -1) {
-                // Add to shift days
-                shiftDays.push(day);
-                shiftDays.sort((a, b) => a - b);
-            } else {
-                // Remove from shift days
-                shiftDays.splice(index, 1);
-            }
-            
-            // Re-render calendar and update calculations
-            renderCalendar(year, monthNum);
-            updateSummary(year, monthNum);
-            renderDataTable();
-            updateCharts();
-        }
-
-        // Get month data with calculations
-        function getMonthData(year, monthNum) {
-            const shiftDays = schedule[year][monthNum] || [];
-            const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
-            
-            // Calculate holidays
-            let holidays = 0;
-            for (let day = 1; day <= daysInMonth; day++) {
-                if (isHolidayDate(year, monthNum, day)) {
-                    holidays++;
-                }
-            }
-            
-            // Calculate hours according to the new rules
-            let rate1Hours = 0; // Mon-Fri 18-24 (÷600)
-            let rate2Hours = 0; // Mon-Sat 0-7 (÷400)
-            let rate3Hours = 0; // Sat 7-24 & Sun (÷300)
-            let holidayHours = 0; // Holiday hours (÷150)
-            
-            shiftDays.forEach(day => {
-                const date = new Date(year, monthNum, day);
-                const dayOfWeek = date.getDay();
-                const isHoliday = isHolidayDate(year, monthNum, day);
-                
-                if (isHoliday) {
-                    // Holiday hours (÷150)
-                    holidayHours += 11; // Full day compensation for holidays
-                } else if (dayOfWeek === 0) {
-                    // Sunday (÷300)
-                    rate3Hours += 11; // Full day compensation for Sundays
-                } else if (dayOfWeek === 6) {
-                    // Saturday (÷300 for 7-24, ÷400 for 0-7)
-                    rate2Hours += 6; // 0-7 hours
-                    rate3Hours += 5; // 7-24 hours
-                } else {
-                    // Weekday (Mon-Fri)
-                    rate1Hours += 5; // 18-24 hours (÷600)
-                    rate2Hours += 6; // 0-7 hours (÷400)
-                }
-            });
-            
-            // Calculate pay
-            const rate1 = baseSalary / 600;
-            const rate2 = baseSalary / 400;
-            const rate3 = baseSalary / 300;
-            const rateHoliday = baseSalary / 150;
-            
-            const rate1Pay = rate1Hours * rate1;
-            const rate2Pay = rate2Hours * rate2;
-            const rate3Pay = rate3Hours * rate3;
-            const holidayPay = holidayHours * rateHoliday;
-            
-            const totalPay = rate1Pay + rate2Pay + rate3Pay + holidayPay;
-            
-            return {
-                month: months[monthNum].name,
-                monthNum: monthNum,
-                year: year,
-                shiftDays: shiftDays.length,
-                holidays: holidays,
-                rate1Hours: rate1Hours,
-                rate2Hours: rate2Hours,
-                rate3Hours: rate3Hours,
-                holidayHours: holidayHours,
-                rate1Pay: rate1Pay,
-                rate2Pay: rate2Pay,
-                rate3Pay: rate3Pay,
-                holidayPay: holidayPay,
-                totalPay: totalPay
+            // Shift templates
+            const shiftTemplates = {
+                '18:00-00:00': { start: '18:00', end: '00:00', hours: 6 },
+                '00:00-05:00': { start: '00:00', end: '05:00', hours: 5 },
+                '19:00-00:00': { start: '19:00', end: '00:00', hours: 5 },
+                '00:00-06:00': { start: '00:00', end: '06:00', hours: 6 }
             };
-        }
 
-        // Update all calculations when base salary changes
-        function updateAllCalculations() {
-            months.forEach(month => {
-                getMonthData(currentYear, month.num);
-            });
-        }
+            // Valid template combinations
+            const validCombinations = [
+                ['18:00-00:00', '00:00-05:00'],
+                ['19:00-00:00', '00:00-06:00']
+            ];
 
-        // Update summary section for a specific month
-        function updateSummary(year, monthNum) {
-            const monthData = getMonthData(year, monthNum);
-            const monthName = months.find(m => m.num === monthNum).name;
-            
-            document.getElementById('currentMonthDisplay').textContent = `${monthName} ${year}`;
-            document.getElementById('shiftDaysCount').textContent = monthData.shiftDays;
-            document.getElementById('holidaysCount').textContent = monthData.holidays;
-            document.getElementById('baseSalaryDisplay').textContent = new Intl.NumberFormat('sv-SE').format(baseSalary) + ' SEK';
-            document.getElementById('rate1Hours').textContent = monthData.rate1Hours;
-            document.getElementById('rate2Hours').textContent = monthData.rate2Hours;
-            document.getElementById('rate3Hours').textContent = monthData.rate3Hours;
-            document.getElementById('holidayHours').textContent = monthData.holidayHours;
-            document.getElementById('rate1Pay').textContent = formatSEKPlain(monthData.rate1Pay) + ' SEK';
-            document.getElementById('rate2Pay').textContent = formatSEKPlain(monthData.rate2Pay) + ' SEK';
-            document.getElementById('rate3Pay').textContent = formatSEKPlain(monthData.rate3Pay) + ' SEK';
-            document.getElementById('holidayPay').textContent = formatSEKPlain(monthData.holidayPay) + ' SEK';
-            document.getElementById('totalPay').textContent = formatSEKPlain(monthData.totalPay) + ' SEK';
-        }
+            // Public methods
+            return {
+                init: function() {
+                    this.loadFromLocalStorage();
+                    this.setupEventListeners();
+                    this.renderCalendar(currentYear, currentMonth);
+                    this.updateSummary(currentYear, currentMonth);
+                    this.renderDataTable();
+                    this.initCharts();
+                    
+                    // Update current year display
+                    document.getElementById('current-year').textContent = currentYear;
+                },
 
-        // Render data table
-        function renderDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            tableBody.innerHTML = '';
-            
-            months.forEach(month => {
-                const monthData = getMonthData(currentYear, month.num);
-                const row = document.createElement('tr');
-                row.className = 'fade-in';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap font-medium">${monthData.month}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${monthData.shiftDays}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${monthData.rate1Hours}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
-                    <td class="px-6 py-4 whitespace-nowrap font-semibold">${formatSEKPlain(monthData.totalPay)} SEK</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
+                loadFromLocalStorage: function() {
+                    // Load schedule data
+                    const savedSchedule = localStorage.getItem('shiftSchedule');
+                    if (savedSchedule) {
+                        schedule = JSON.parse(savedSchedule);
+                    } else {
+                        this.initializeSchedule();
+                    }
+                    
+                    // Load base salary
+                    const savedBaseSalary = localStorage.getItem('baseSalary');
+                    if (savedBaseSalary) {
+                        baseSalary = parseFloat(savedBaseSalary);
+                        document.getElementById('baseSalaryInput').value = baseSalary;
+                    }
+                },
 
-        // Initialize charts
-        function initCharts() {
-            // Hours Chart
-            const hoursCtx = document.getElementById('hoursChart').getContext('2d');
-            hoursChart = new Chart(hoursCtx, {
-                type: 'bar',
-                data: getChartData(),
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                afterBody: function(context) {
-                                    const dataIndex = context[0].dataIndex;
-                                    const monthData = getMonthData(currentYear, dataIndex);
-                                    return [
-                                        `Total Hours: ${monthData.rate1Hours + monthData.rate2Hours + monthData.rate3Hours + monthData.holidayHours}`,
-                                        `Shift Days: ${monthData.shiftDays}`
-                                    ];
-                                }
+                saveToLocalStorage: function() {
+                    localStorage.setItem('shiftSchedule', JSON.stringify(schedule));
+                    localStorage.setItem('baseSalary', baseSalary.toString());
+                },
+
+                initializeSchedule: function() {
+                    const years = [2025, 2026, 2027, 2028, 2029];
+                    schedule = {};
+                    
+                    years.forEach(year => {
+                        schedule[year] = {};
+                        months.forEach(month => {
+                            schedule[year][month.num] = {};
+                        });
+                    });
+                },
+
+                setupEventListeners: function() {
+                    // Navigation
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.addEventListener('click', (e) => {
+                            const page = e.target.getAttribute('data-page');
+                            this.switchPage(page);
+                        });
+                    });
+
+                    document.getElementById('monthSelect').addEventListener('change', (e) => {
+                        currentMonth = parseInt(e.target.value);
+                        this.renderCalendar(currentYear, currentMonth);
+                        this.updateSummary(currentYear, currentMonth);
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                    });
+                    
+                    document.getElementById('yearSelect').addEventListener('change', (e) => {
+                        currentYear = parseInt(e.target.value);
+                        this.renderCalendar(currentYear, currentMonth);
+                        this.updateSummary(currentYear, currentMonth);
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                    });
+                    
+                    document.getElementById('prevMonth').addEventListener('click', () => {
+                        if (currentMonth > 0) {
+                            currentMonth--;
+                        } else {
+                            currentMonth = 11;
+                            currentYear--;
+                            document.getElementById('yearSelect').value = currentYear;
+                        }
+                        document.getElementById('monthSelect').value = currentMonth;
+                        this.renderCalendar(currentYear, currentMonth);
+                        this.updateSummary(currentYear, currentMonth);
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                    });
+                    
+                    document.getElementById('nextMonth').addEventListener('click', () => {
+                        if (currentMonth < 11) {
+                            currentMonth++;
+                        } else {
+                            currentMonth = 0;
+                            currentYear++;
+                            document.getElementById('yearSelect').value = currentYear;
+                        }
+                        document.getElementById('monthSelect').value = currentMonth;
+                        this.renderCalendar(currentYear, currentMonth);
+                        this.updateSummary(currentYear, currentMonth);
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                    });
+                    
+                    document.getElementById('exportBtn').addEventListener('click', () => {
+                        this.exportData();
+                    });
+                    
+                    document.getElementById('baseSalaryInput').addEventListener('change', (e) => {
+                        baseSalary = parseFloat(e.target.value) || 1000;
+                        this.updateAllCalculations();
+                        this.updateSummary(currentYear, currentMonth);
+                        this.renderDataTable();
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                        this.saveToLocalStorage();
+                    });
+                    
+                    document.getElementById('clearMonthBtn').addEventListener('click', () => {
+                        if (confirm('Are you sure you want to clear all shift days for this month?')) {
+                            schedule[currentYear][currentMonth] = {};
+                            this.renderCalendar(currentYear, currentMonth);
+                            this.updateSummary(currentYear, currentMonth);
+                            this.renderDataTable();
+                            if (currentPage === 'overview') {
+                                this.updateCharts();
+                                this.renderOverviewTable();
+                            }
+                            this.saveToLocalStorage();
+                        }
+                    });
+                    
+                    document.getElementById('saveChangesBtn').addEventListener('click', () => {
+                        this.saveToLocalStorage();
+                        this.showSuccessMessage('Changes saved successfully!');
+                    });
+                    
+                    // Modal event listeners
+                    document.getElementById('cancelShift').addEventListener('click', () => {
+                        document.getElementById('shiftModal').classList.add('hidden');
+                    });
+                    
+                    document.getElementById('saveShift').addEventListener('click', () => {
+                        this.saveShiftHours();
+                    });
+                    
+                    document.getElementById('clearShift').addEventListener('click', () => {
+                        this.clearShiftDay();
+                    });
+                    
+                    // Template selection
+                    document.querySelectorAll('.template-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const template = e.currentTarget.getAttribute('data-template');
+                            this.toggleTemplate(template);
+                        });
+                    });
+                },
+
+                switchPage: function(page) {
+                    // Hide all pages
+                    document.querySelectorAll('.page').forEach(p => {
+                        p.classList.remove('active');
+                    });
+                    
+                    // Remove active class from all nav links
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    
+                    // Show selected page
+                    document.getElementById(`${page}-page`).classList.add('active');
+                    
+                    // Set active nav link
+                    document.querySelector(`.nav-link[data-page="${page}"]`).classList.add('active');
+                    
+                    currentPage = page;
+                    
+                    // Update data if needed
+                    if (page === 'overview') {
+                        this.updateCharts();
+                        this.renderOverviewTable();
+                    } else if (page === 'export') {
+                        this.renderDataTable();
+                    }
+                },
+
+                renderCalendar: function(year, monthNum) {
+                    const calendarGrid = document.getElementById('calendarGrid');
+                    calendarGrid.innerHTML = '';
+                    
+                    const monthName = months.find(m => m.num === monthNum).name;
+                    
+                    // Get first day of month and days in month
+                    const firstDay = new Date(year, monthNum, 1).getDay(); // 0 = Sunday
+                    const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+                    
+                    // Add empty cells for days before the first day of the month
+                    for (let i = 0; i < firstDay; i++) {
+                        const emptyCell = document.createElement('div');
+                        emptyCell.className = 'h-16';
+                        calendarGrid.appendChild(emptyCell);
+                    }
+                    
+                    // Add cells for each day of the month
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        const date = new Date(year, monthNum, day);
+                        const dayOfWeek = date.getDay();
+                        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                        const isShiftDay = schedule[year] && schedule[year][monthNum] && schedule[year][monthNum][day];
+                        const isHoliday = this.isHolidayDate(year, monthNum, day);
+                        
+                        const dayElement = document.createElement('div');
+                        dayElement.className = 'calendar-day h-16 flex flex-col items-center justify-center rounded-lg border';
+                        
+                        if (isShiftDay) {
+                            dayElement.classList.add('shift-day');
+                        } else if (isHoliday) {
+                            dayElement.classList.add('holiday');
+                        } else if (isWeekend) {
+                            dayElement.classList.add('weekend');
+                        }
+                        
+                        dayElement.innerHTML = `
+                            <span class="font-medium">${day}</span>
+                            <span class="text-xs mt-1">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}</span>
+                        `;
+                        
+                        // Add tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        
+                        let tooltipText = `${monthName} ${day}, ${year} (${['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][dayOfWeek]})`;
+                        if (isShiftDay) {
+                            const shiftData = schedule[year][monthNum][day];
+                            if (Array.isArray(shiftData)) {
+                                shiftData.forEach((shift, index) => {
+                                    tooltipText += `\nShift ${index + 1}: ${shift.start} - ${shift.end}`;
+                                });
+                            } else {
+                                tooltipText += `\nShift: ${shiftData.start} - ${shiftData.end}`;
                             }
                         }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Hours'
+                        if (isHoliday) tooltipText += `\n${this.getHolidayName(year, monthNum, day)}`;
+                        
+                        tooltip.innerHTML = `
+                            ${day}
+                            <span class="tooltip-text">${tooltipText}</span>
+                        `;
+                        
+                        dayElement.querySelector('span:first-child').replaceWith(tooltip);
+                        
+                        // Add click event to open shift modal
+                        dayElement.addEventListener('click', () => {
+                            this.openShiftModal(year, monthNum, day);
+                        });
+                        
+                        calendarGrid.appendChild(dayElement);
+                    }
+                },
+
+                isHolidayDate: function(year, monthNum, day) {
+                    // Check fixed holidays
+                    const fixedKey = `${monthNum}-${day}`;
+                    if (fixedHolidays[fixedKey]) {
+                        return true;
+                    }
+                    
+                    // Check movable holidays (Easter-based)
+                    const easterDate = this.calculateEaster(year);
+                    const easterMonth = easterDate.getMonth();
+                    const easterDay = easterDate.getDate();
+                    
+                    // Maundy Thursday (3 days before Easter)
+                    const maundyThursday = new Date(year, easterMonth, easterDay - 3);
+                    if (maundyThursday.getMonth() === monthNum && maundyThursday.getDate() === day) return true;
+                    
+                    // Good Friday (2 days before Easter)
+                    const goodFriday = new Date(year, easterMonth, easterDay - 2);
+                    if (goodFriday.getMonth() === monthNum && goodFriday.getDate() === day) return true;
+                    
+                    // Easter Monday (1 day after Easter)
+                    const easterMonday = new Date(year, easterMonth, easterDay + 1);
+                    if (easterMonday.getMonth() === monthNum && easterMonday.getDate() === day) return true;
+                    
+                    // Ascension Day (39 days after Easter)
+                    const ascension = new Date(year, easterMonth, easterDay + 39);
+                    if (ascension.getMonth() === monthNum && ascension.getDate() === day) return true;
+                    
+                    // Pentecost (49 days after Easter)
+                    const pentecost = new Date(year, easterMonth, easterDay + 49);
+                    if (pentecost.getMonth() === monthNum && pentecost.getDate() === day) return true;
+                    
+                    // Midsummer Eve (Friday between June 19-25)
+                    if (monthNum === 5) { // June
+                        for (let d = 19; d <= 25; d++) {
+                            const date = new Date(year, 5, d);
+                            if (date.getDay() === 5 && date.getDate() === day) {
+                                return true;
                             }
                         }
                     }
-                }
-            });
-            
-            // Pay Chart
-            const payCtx = document.getElementById('payChart').getContext('2d');
-            payChart = new Chart(payCtx, {
-                type: 'bar',
-                data: getChartData(),
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatSEK(context.raw);
+                    
+                    // All Saints' Day (Saturday between October 31 and November 6)
+                    if (monthNum === 10) { // November
+                        for (let d = 31; d <= 36; d++) {
+                            const date = new Date(year, 9, d > 31 ? d - 31 : d);
+                            if (date.getDay() === 6 && date.getDate() === day) {
+                                return true;
+                            }
+                        }
+                    }
+                    
+                    return false;
+                },
+
+                calculateEaster: function(year) {
+                    // Anonymous Gregorian algorithm for Easter date calculation
+                    const a = year % 19;
+                    const b = Math.floor(year / 100);
+                    const c = year % 100;
+                    const d = Math.floor(b / 4);
+                    const e = b % 4;
+                    const f = Math.floor((b + 8) / 25);
+                    const g = Math.floor((b - f + 1) / 3);
+                    const h = (19 * a + b - d - g + 15) % 30;
+                    const i = Math.floor(c / 4);
+                    const k = c % 4;
+                    const l = (32 + 2 * e + 2 * i - h - k) % 7;
+                    const m = Math.floor((a + 11 * h + 22 * l) / 451);
+                    const month = Math.floor((h + l - 7 * m + 114) / 31);
+                    const day = ((h + l - 7 * m + 114) % 31) + 1;
+                    
+                    return new Date(year, month - 1, day);
+                },
+
+                getHolidayName: function(year, monthNum, day) {
+                    // Check fixed holidays
+                    const fixedKey = `${monthNum}-${day}`;
+                    if (fixedHolidays[fixedKey]) {
+                        return fixedHolidays[fixedKey];
+                    }
+                    
+                    // Check movable holidays
+                    const easterDate = this.calculateEaster(year);
+                    const easterMonth = easterDate.getMonth();
+                    const easterDay = easterDate.getDate();
+                    
+                    // Maundy Thursday (3 days before Easter)
+                    const maundyThursday = new Date(year, easterMonth, easterDay - 3);
+                    if (maundyThursday.getMonth() === monthNum && maundyThursday.getDate() === day) return 'Maundy Thursday';
+                    
+                    // Good Friday (2 days before Easter)
+                    const goodFriday = new Date(year, easterMonth, easterDay - 2);
+                    if (goodFriday.getMonth() === monthNum && goodFriday.getDate() === day) return 'Good Friday';
+                    
+                    // Easter Monday (1 day after Easter)
+                    const easterMonday = new Date(year, easterMonth, easterDay + 1);
+                    if (easterMonday.getMonth() === monthNum && easterMonday.getDate() === day) return 'Easter Monday';
+                    
+                    // Ascension Day (39 days after Easter)
+                    const ascension = new Date(year, easterMonth, easterDay + 39);
+                    if (ascension.getMonth() === monthNum && ascension.getDate() === day) return 'Ascension Day';
+                    
+                    // Pentecost (49 days after Easter)
+                    const pentecost = new Date(year, easterMonth, easterDay + 49);
+                    if (pentecost.getMonth() === monthNum && pentecost.getDate() === day) return 'Pentecost';
+                    
+                    // Midsummer Eve (Friday between June 19-25)
+                    if (monthNum === 5) {
+                        for (let d = 19; d <= 25; d++) {
+                            const date = new Date(year, 5, d);
+                            if (date.getDay() === 5 && date.getDate() === day) {
+                                return 'Midsummer Eve';
+                            }
+                        }
+                    }
+                    
+                    // All Saints' Day (Saturday between October 31 and November 6)
+                    if (monthNum === 10) {
+                        for (let d = 31; d <= 36; d++) {
+                            const date = new Date(year, 9, d > 31 ? d - 31 : d);
+                            if (date.getDay() === 6 && date.getDate() === day) {
+                                return 'All Saints\' Day';
+                            }
+                        }
+                    }
+                    
+                    return 'Holiday';
+                },
+
+                openShiftModal: function(year, monthNum, day) {
+                    selectedDay = { year, monthNum, day };
+                    selectedTemplates = [];
+                    const monthName = months.find(m => m.num === monthNum).name;
+                    document.getElementById('shiftDate').value = `${monthName} ${day}, ${year}`;
+                    
+                    // Reset template buttons
+                    document.querySelectorAll('.template-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+                    
+                    // If shift already exists, populate the form
+                    if (schedule[year] && schedule[year][monthNum] && schedule[year][monthNum][day]) {
+                        const shiftData = schedule[year][monthNum][day];
+                        const shifts = Array.isArray(shiftData) ? shiftData : [shiftData];
+                        
+                        // Try to match existing shifts to templates
+                        shifts.forEach(shift => {
+                            const templateKey = `${shift.start}-${shift.end}`;
+                            if (shiftTemplates[templateKey]) {
+                                this.selectTemplate(templateKey);
+                            }
+                        });
+                        
+                        document.getElementById('clearShift').style.display = 'block';
+                    } else {
+                        document.getElementById('clearShift').style.display = 'none';
+                    }
+                    
+                    document.getElementById('shiftModal').classList.remove('hidden');
+                },
+
+                toggleTemplate: function(template) {
+                    const btn = document.querySelector(`.template-btn[data-template="${template}"]`);
+                    
+                    if (selectedTemplates.includes(template)) {
+                        // Deselect template
+                        selectedTemplates = selectedTemplates.filter(t => t !== template);
+                        btn.classList.remove('selected');
+                    } else {
+                        // Check if this template is part of a complete combination
+                        const isPartOfCombination = validCombinations.some(combo => combo.includes(template));
+                        
+                        if (isPartOfCombination) {
+                            // If we already have 2 templates, deselect one first
+                            if (selectedTemplates.length >= 2) {
+                                // Remove the first selected template
+                                const firstTemplate = selectedTemplates[0];
+                                this.deselectTemplate(firstTemplate);
+                            }
+                            
+                            // Select template
+                            selectedTemplates.push(template);
+                            btn.classList.add('selected');
+                        } else {
+                            // Single template selection (user can select up to 2 individual templates)
+                            if (selectedTemplates.length >= 2) {
+                                // Remove the first selected template
+                                const firstTemplate = selectedTemplates[0];
+                                this.deselectTemplate(firstTemplate);
+                            }
+                            
+                            // Select template
+                            selectedTemplates.push(template);
+                            btn.classList.add('selected');
+                        }
+                    }
+                },
+
+                selectTemplate: function(template) {
+                    if (!selectedTemplates.includes(template)) {
+                        selectedTemplates.push(template);
+                        const btn = document.querySelector(`.template-btn[data-template="${template}"]`);
+                        if (btn) {
+                            btn.classList.add('selected');
+                        }
+                    }
+                },
+
+                deselectTemplate: function(template) {
+                    selectedTemplates = selectedTemplates.filter(t => t !== template);
+                    const btn = document.querySelector(`.template-btn[data-template="${template}"]`);
+                    if (btn) {
+                        btn.classList.remove('selected');
+                    }
+                },
+
+                saveShiftHours: function() {
+                    if (!selectedDay) return;
+                    
+                    if (selectedTemplates.length === 0) {
+                        alert('Please select at least one shift template');
+                        return;
+                    }
+                    
+                    const shifts = selectedTemplates.map(template => {
+                        const templateData = shiftTemplates[template];
+                        return {
+                            start: templateData.start,
+                            end: templateData.end
+                        };
+                    });
+                    
+                    const { year, monthNum, day } = selectedDay;
+                    
+                    if (!schedule[year]) schedule[year] = {};
+                    if (!schedule[year][monthNum]) schedule[year][monthNum] = {};
+                    
+                    // Save shift data
+                    schedule[year][monthNum][day] = shifts.length === 1 ? shifts[0] : shifts;
+                    
+                    // Close modal
+                    document.getElementById('shiftModal').classList.add('hidden');
+                    
+                    // Re-render calendar and update calculations
+                    this.renderCalendar(year, monthNum);
+                    this.updateSummary(year, monthNum);
+                    this.renderDataTable();
+                    if (currentPage === 'overview') {
+                        this.updateCharts();
+                        this.renderOverviewTable();
+                    }
+                    this.saveToLocalStorage();
+                },
+
+                clearShiftDay: function() {
+                    if (!selectedDay) return;
+                    
+                    const { year, monthNum, day } = selectedDay;
+                    
+                    if (schedule[year] && schedule[year][monthNum] && schedule[year][monthNum][day]) {
+                        delete schedule[year][monthNum][day];
+                        
+                        // Close modal
+                        document.getElementById('shiftModal').classList.add('hidden');
+                        
+                        // Re-render calendar and update calculations
+                        this.renderCalendar(year, monthNum);
+                        this.updateSummary(year, monthNum);
+                        this.renderDataTable();
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                        this.saveToLocalStorage();
+                    }
+                },
+
+                getMonthData: function(year, monthNum) {
+                    const shiftDays = schedule[year] && schedule[year][monthNum] ? schedule[year][monthNum] : {};
+                    const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+                    const shiftDayCount = Object.keys(shiftDays).length;
+                    
+                    // Calculate holidays
+                    let holidays = 0;
+                    for (let day = 1; day <= daysInMonth; day++) {
+                        if (this.isHolidayDate(year, monthNum, day)) {
+                            holidays++;
+                        }
+                    }
+                    
+                    // Calculate hours according to the rules
+                    let rate1Hours = 0; // Mon-Fri 18-24 (/600)
+                    let rate2Hours = 0; // Mon-Sat 00-07 (/400)
+                    let rate3Hours = 0; // Sat 07-24 & Sun (/300)
+                    let holidayHours = 0; // Holiday hours (/150)
+                    
+                    Object.keys(shiftDays).forEach(day => {
+                        const dayNum = parseInt(day);
+                        const shiftData = shiftDays[dayNum];
+                        const shifts = Array.isArray(shiftData) ? shiftData : [shiftData];
+                        
+                        shifts.forEach(shift => {
+                            const isHoliday = this.isHolidayDate(year, monthNum, dayNum);
+                            
+                            // Parse start and end times
+                            const [startHour, startMinute] = shift.start.split(':').map(Number);
+                            const [endHour, endMinute] = shift.end.split(':').map(Number);
+                            
+                            // Create date objects for start and end times
+                            const startDate = new Date(year, monthNum, dayNum, startHour, startMinute);
+                            let endDate = new Date(year, monthNum, dayNum, endHour, endMinute);
+                            
+                            // If end time is before start time, it's next day
+                            if (endDate < startDate) {
+                                endDate.setDate(endDate.getDate() + 1);
+                            }
+                            
+                            // Calculate total shift duration in hours
+                            const shiftDuration = (endDate - startDate) / (1000 * 60 * 60);
+                            
+                            // Check if end date is a holiday
+                            const endDateDay = endDate.getDate();
+                            const endDateMonth = endDate.getMonth();
+                            const isEndDateHoliday = this.isHolidayDate(year, endDateMonth, endDateDay);
+                            
+                            // If either day is a holiday, all hours are paid at holiday rate ?
+                            if (isHoliday || isEndDateHoliday) {
+                                holidayHours += shiftDuration;
+                            } else {
+                                // Calculate hours based on day of week and time periods
+                                const startDayOfWeek = startDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+                                const endDayOfWeek = endDate.getDay();
+                                
+                                // Split the shift into time segments
+                                const segments = this.splitShiftIntoSegments(startDate, endDate);
+                                
+                                segments.forEach(segment => {
+                                    const dayOfWeek = segment.date.getDay();
+                                    const hour = segment.date.getHours();
+                                    
+                                    if (dayOfWeek === 0) { // Sunday
+                                        rate3Hours += segment.hours;
+                                    } else if (dayOfWeek === 6) { // Saturday
+                                        if (hour >= 7 && hour < 24) {
+                                            rate3Hours += segment.hours;
+                                        } else {
+                                            rate2Hours += segment.hours; // 00-07
+                                        }
+                                    } else { // Monday-Friday
+                                        if (hour >= 18 && hour < 24) {
+                                            rate1Hours += segment.hours;
+                                        } else if (hour >= 0 && hour < 7) {
+                                            rate2Hours += segment.hours;
+                                        } else {
+                                            // Regular hours (07-18) - not paid extra
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    });
+                    
+                    // Calculate pay
+                    const rate1 = baseSalary / 600;
+                    const rate2 = baseSalary / 400;
+                    const rate3 = baseSalary / 300;
+                    const rateHoliday = baseSalary / 150;
+                    
+                    const rate1Pay = rate1Hours * rate1;
+                    const rate2Pay = rate2Hours * rate2;
+                    const rate3Pay = rate3Hours * rate3;
+                    const holidayPay = holidayHours * rateHoliday;
+                    
+                    const totalPay = rate1Pay + rate2Pay + rate3Pay + holidayPay;
+                    
+                    return {
+                        month: months[monthNum].name,
+                        monthNum: monthNum,
+                        year: year,
+                        shiftDays: shiftDayCount,
+                        holidays: holidays,
+                        rate1Hours: Math.round(rate1Hours * 100) / 100,
+                        rate2Hours: Math.round(rate2Hours * 100) / 100,
+                        rate3Hours: Math.round(rate3Hours * 100) / 100,
+                        holidayHours: Math.round(holidayHours * 100) / 100,
+                        rate1Pay: rate1Pay,
+                        rate2Pay: rate2Pay,
+                        rate3Pay: rate3Pay,
+                        holidayPay: holidayPay,
+                        totalPay: totalPay
+                    };
+                },
+
+                splitShiftIntoSegments: function(startDate, endDate) {
+                    const segments = [];
+                    let current = new Date(startDate);
+                    
+                    while (current < endDate) {
+                        const nextHour = new Date(current);
+                        nextHour.setHours(nextHour.getHours() + 1);
+                        
+                        const segmentEnd = nextHour < endDate ? nextHour : endDate;
+                        const hours = (segmentEnd - current) / (1000 * 60 * 60);
+                        
+                        segments.push({
+                            date: new Date(current),
+                            hours: hours
+                        });
+                        
+                        current = nextHour;
+                    }
+                    
+                    return segments;
+                },
+
+                updateAllCalculations: function() {
+                    months.forEach(month => {
+                        this.getMonthData(currentYear, month.num);
+                    });
+                },
+
+                updateSummary: function(year, monthNum) {
+                    const monthData = this.getMonthData(year, monthNum);
+                    const monthName = months.find(m => m.num === monthNum).name;
+                    
+                    document.getElementById('currentMonthDisplay').textContent = `${monthName} ${year}`;
+                    document.getElementById('shiftDaysCount').textContent = monthData.shiftDays;
+                    document.getElementById('holidaysCount').textContent = monthData.holidays;
+                    document.getElementById('rate1Hours').textContent = monthData.rate1Hours;
+                    document.getElementById('rate2Hours').textContent = monthData.rate2Hours;
+                    document.getElementById('rate3Hours').textContent = monthData.rate3Hours;
+                    document.getElementById('holidayHours').textContent = monthData.holidayHours;
+                    document.getElementById('rate1Pay').textContent = this.formatSEKPlain(monthData.rate1Pay) + ' SEK';
+                    document.getElementById('rate2Pay').textContent = this.formatSEKPlain(monthData.rate2Pay) + ' SEK';
+                    document.getElementById('rate3Pay').textContent = this.formatSEKPlain(monthData.rate3Pay) + ' SEK';
+                    document.getElementById('holidayPay').textContent = this.formatSEKPlain(monthData.holidayPay) + ' SEK';
+                    document.getElementById('totalPay').textContent = this.formatSEKPlain(monthData.totalPay) + ' SEK';
+                },
+
+                formatSEK: function(amount) {
+                    return new Intl.NumberFormat('sv-SE', {
+                        style: 'currency',
+                        currency: 'SEK',
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(amount).replace('kr', 'SEK');
+                },
+
+                formatSEKPlain: function(amount) {
+                    return new Intl.NumberFormat('sv-SE', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }).format(amount);
+                },
+
+                renderDataTable: function() {
+                    const tableBody = document.getElementById('dataTableBody');
+                    tableBody.innerHTML = '';
+                    
+                    months.forEach(month => {
+                        const monthData = this.getMonthData(currentYear, month.num);
+                        const row = document.createElement('tr');
+                        row.className = 'fade-in';
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">${monthData.month}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.shiftDays}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate1Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                },
+
+                renderOverviewTable: function() {
+                    const tableBody = document.getElementById('overviewTableBody');
+                    tableBody.innerHTML = '';
+                    
+                    months.forEach(month => {
+                        const monthData = this.getMonthData(currentYear, month.num);
+                        const row = document.createElement('tr');
+                        row.className = 'fade-in';
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">${monthData.month}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.shiftDays}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate1Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
+                            <td class="px-6 py-4 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                },
+
+                initCharts: function() {
+                    // Hours Chart
+                    const hoursCtx = document.getElementById('hoursChart').getContext('2d');
+                    hoursChart = new Chart(hoursCtx, {
+                        type: 'bar',
+                        data: this.getChartData(),
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
                                 },
-                                afterBody: function(context) {
-                                    const dataIndex = context[0].dataIndex;
-                                    const monthData = getMonthData(currentYear, dataIndex);
-                                    return `Total Pay: ${formatSEK(monthData.totalPay)}`;
+                                tooltip: {
+                                    callbacks: {
+                                        afterBody: (context) => {
+                                            const dataIndex = context[0].dataIndex;
+                                            const monthData = this.getMonthData(currentYear, dataIndex);
+                                            const totalHours = monthData.rate1Hours + monthData.rate2Hours + 
+                                                              monthData.rate3Hours + monthData.holidayHours;
+                                            return [
+                                                `Total Hours: ${Math.round(totalHours * 100) / 100}`,
+                                                `Shift Days: ${monthData.shiftDays}`
+                                            ];
+                                        }
+                                    }
                                 }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                        },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'SEK'
                             },
-                            ticks: {
-                                callback: function(value) {
-                                    return formatSEK(value);
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                },
+                                y: {
+                                    stacked: true,
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Hours'
+                                    }
                                 }
                             }
                         }
+                    });
+                    
+                    // Pay Chart
+                    const payCtx = document.getElementById('payChart').getContext('2d');
+                    payChart = new Chart(payCtx, {
+                        type: 'bar',
+                        data: this.getChartData(),
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            return context.dataset.label + ': ' + this.formatSEK(context.raw);
+                                        },
+                                        afterBody: (context) => {
+                                            const dataIndex = context[0].dataIndex;
+                                            const monthData = this.getMonthData(currentYear, dataIndex);
+                                            return `Total Pay: ${this.formatSEK(monthData.totalPay)}`;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                },
+                                y: {
+                                    stacked: true,
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'SEK'
+                                    },
+                                    ticks: {
+                                        callback: (value) => {
+                                            return this.formatSEK(value);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                },
+
+                getChartData: function() {
+                    return {
+                        labels: months.map(m => m.name),
+                        datasets: [
+                            {
+                                label: 'Hourly Rate 1 (/600)',
+                                data: months.map(m => this.getMonthData(currentYear, m.num).rate1Hours),
+                                backgroundColor: '#3b82f6',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: 'Hourly Rate 2 (/400)',
+                                data: months.map(m => this.getMonthData(currentYear, m.num).rate2Hours),
+                                backgroundColor: '#6366f1',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: 'Hourly Rate 3 (/300)',
+                                data: months.map(m => this.getMonthData(currentYear, m.num).rate3Hours),
+                                backgroundColor: '#8b5cf6',
+                                stack: 'Stack 0'
+                            },
+                            {
+                                label: 'Holiday Hours (/150)',
+                                data: months.map(m => this.getMonthData(currentYear, m.num).holidayHours),
+                                backgroundColor: '#ef4444',
+                                stack: 'Stack 0'
+                            }
+                        ]
+                    };
+                },
+
+                updateCharts: function() {
+                    if (hoursChart && payChart) {
+                        const chartData = this.getChartData();
+                        
+                        hoursChart.data = chartData;
+                        hoursChart.update();
+                        
+                        payChart.data = chartData;
+                        payChart.update();
                     }
+                },
+
+                exportData: function() {
+                    // Create CSV content
+                    let csvContent = "Year,Month,Shift Days,Hourly Rate 1,Hourly Rate 2,Hourly Rate 3,Holiday Hours,Pay Rate 1 (SEK),Pay Rate 2 (SEK),Pay Rate 3 (SEK),Holiday Pay (SEK),Total Pay (SEK)\n";
+                    
+                    months.forEach(month => {
+                        const monthData = this.getMonthData(currentYear, month.num);
+                        csvContent += `${currentYear},${monthData.month},${monthData.shiftDays},${monthData.rate1Hours},${monthData.rate2Hours},${monthData.rate3Hours},${monthData.holidayHours},${monthData.rate1Pay},${monthData.rate2Pay},${monthData.rate3Pay},${monthData.holidayPay},${monthData.totalPay}\n`;
+                    });
+                    
+                    // Create download link
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `Shift_compensation_${currentYear}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Show success message
+                    this.showSuccessMessage('Data exported successfully!');
+                },
+
+                showSuccessMessage: function(message) {
+                    const saveBtn = document.getElementById('saveChangesBtn');
+                    const originalText = saveBtn.innerHTML;
+                    saveBtn.innerHTML = `<i class="fas fa-check mr-2"></i> ${message}`;
+                    saveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                    saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    
+                    setTimeout(() => {
+                        saveBtn.innerHTML = originalText;
+                        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                        saveBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                    }, 2000);
                 }
-            });
-        }
-
-        // Get chart data
-        function getChartData() {
-            return {
-                labels: months.map(m => m.name),
-                datasets: [
-                    {
-                        label: 'Rate 1 Hours (÷600)',
-                        data: months.map(m => getMonthData(currentYear, m.num).rate1Hours),
-                        backgroundColor: '#3b82f6',
-                        stack: 'Stack 0'
-                    },
-                    {
-                        label: 'Rate 2 Hours (÷400)',
-                        data: months.map(m => getMonthData(currentYear, m.num).rate2Hours),
-                        backgroundColor: '#6366f1',
-                        stack: 'Stack 0'
-                    },
-                    {
-                        label: 'Rate 3 Hours (÷300)',
-                        data: months.map(m => getMonthData(currentYear, m.num).rate3Hours),
-                        backgroundColor: '#8b5cf6',
-                        stack: 'Stack 0'
-                    },
-                    {
-                        label: 'Holiday Hours (÷150)',
-                        data: months.map(m => getMonthData(currentYear, m.num).holidayHours),
-                        backgroundColor: '#ef4444',
-                        stack: 'Stack 0'
-                    }
-                ]
             };
-        }
+        })();
 
-        // Update charts when data changes
-        function updateCharts() {
-            const chartData = getChartData();
-            
-            hoursChart.data = chartData;
-            hoursChart.update();
-            
-            payChart.data = chartData;
-            payChart.update();
-        }
-
-        // Export data function
-        function exportData() {
-            // Create CSV content
-            let csvContent = "Year,Month,Shift Days,Rate 1 Hours,Rate 2 Hours,Rate 3 Hours,Holiday Hours,Rate 1 Pay (SEK),Rate 2 Pay (SEK),Rate 3 Pay (SEK),Holiday Pay (SEK),Total Pay (SEK)\n";
-            
-            months.forEach(month => {
-                const monthData = getMonthData(currentYear, month.num);
-                csvContent += `${currentYear},${monthData.month},${monthData.shiftDays},${monthData.rate1Hours},${monthData.rate2Hours},${monthData.rate3Hours},${monthData.holidayHours},${formatSEKPlain(monthData.rate1Pay)},${formatSEKPlain(monthData.rate2Pay)},${formatSEKPlain(monthData.rate3Pay)},${formatSEKPlain(monthData.holidayPay)},${formatSEKPlain(monthData.totalPay)}\n`;
-            });
-            
-            // Create download link
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `Shift_Schedule_${currentYear}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Show success message
-            showSuccessMessage('Data exported successfully!');
-        }
-
-        // Show success message
-        function showSuccessMessage(message) {
-            const exportBtn = document.getElementById('exportBtn');
-            const originalText = exportBtn.innerHTML;
-            exportBtn.innerHTML = `<i class="fas fa-check mr-2"></i> ${message}`;
-            exportBtn.classList.remove('bg-green-600');
-            exportBtn.classList.add('bg-blue-600');
-            
-            setTimeout(() => {
-                exportBtn.innerHTML = originalText;
-                exportBtn.classList.remove('bg-blue-600');
-                exportBtn.classList.add('bg-green-600');
-            }, 2000);
-        }
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            ShiftScheduleApp.init();
+        });
     </script>
 </body>
+</html>
 </html>
