@@ -65,6 +65,30 @@
             .tooltip .tooltip-text {
                 display: none;
             }
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 2px;
+            }
+            .calendar-day {
+                height: 40px;
+                font-size: 0.75rem;
+            }
+            .calendar-day span:first-child {
+                font-size: 0.875rem;
+            }
+            .calendar-day span:last-child {
+                font-size: 0.625rem;
+            }
+            .summary-grid {
+                grid-template-columns: 1fr 1fr !important;
+            }
+            .nav-link {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            .chart-container {
+                min-height: 250px;
+            }
         }
         .shift-modal {
             position: fixed;
@@ -81,10 +105,12 @@
         .shift-form {
             background-color: white;
             border-radius: 10px;
-            padding: 2rem;
-            width: 90%;
+            padding: 1.5rem;
+            width: 95%;
             max-width: 500px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
         }
         .template-btn {
             background-color: #dbeafe;
@@ -94,7 +120,8 @@
             margin: 0.25rem;
             cursor: pointer;
             transition: all 0.2s;
-            min-width: 120px;
+            min-width: 100px;
+            font-size: 0.875rem;
         }
         .template-btn:hover {
             background-color: #bfdbfe;
@@ -107,7 +134,7 @@
         .template-group {
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 1rem;
+            padding: 0.75rem;
             margin-bottom: 1rem;
         }
         .nav-link {
@@ -129,45 +156,53 @@
         .page.active {
             display: block;
         }
+        .mobile-hidden {
+            display: none;
+        }
+        @media (min-width: 768px) {
+            .mobile-hidden {
+                display: block;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-2 py-4 sm:px-4 sm:py-8">
         <!-- Header -->
-        <header class="mb-8">
-            <div class="flex justify-between items-center flex-wrap gap-4">
+        <header class="mb-6 sm:mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-3xl font-bold text-blue-800">Shift Schedule Dashboard</h1>
-                    <p class="text-gray-600">Dynamic Shift Schedule - <span id="current-year">2025</span></p>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800">Shift Schedule Dashboard</h1>
+                    <p class="text-gray-600 text-sm sm:text-base">Dynamic Shift Schedule - <span id="current-year">2025</span></p>
                 </div>
             </div>
         </header>
 
         <!-- Navigation -->
-        <div class="mb-6">
-            <div class="flex flex-wrap gap-2 bg-white rounded-lg shadow p-2">
-                <div class="nav-link active" data-page="dashboard">Dashboard</div>
-                <div class="nav-link" data-page="overview">Overview</div>
-                <div class="nav-link" data-page="export">Data Export</div>
+        <div class="mb-4 sm:mb-6">
+            <div class="flex flex-wrap gap-1 sm:gap-2 bg-white rounded-lg shadow p-1 sm:p-2">
+                <div class="nav-link active text-sm sm:text-base" data-page="dashboard">Dashboard</div>
+                <div class="nav-link text-sm sm:text-base" data-page="overview">Overview</div>
+                <div class="nav-link text-sm sm:text-base" data-page="export">Data Export</div>
             </div>
         </div>
 
         <!-- Dashboard Page -->
         <div id="dashboard-page" class="page active">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <!-- Calendar Section -->
-                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                        <h2 class="text-xl font-semibold text-gray-800">Calendar</h2>
-                        <div class="flex space-x-2 flex-wrap gap-2">
-                            <select id="yearSelect" class="border rounded px-3 py-1 mr-2">
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3">
+                        <h2 class="text-lg sm:text-xl font-semibold text-gray-800">Calendar</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <select id="yearSelect" class="border rounded px-2 py-1 text-sm sm:px-3 sm:py-1">
                                 <option value="2025">2025</option>
                                 <option value="2026">2026</option>
                                 <option value="2027">2027</option>
                                 <option value="2028">2028</option>
                                 <option value="2029">2029</option>
                             </select>
-                            <select id="monthSelect" class="border rounded px-3 py-1">
+                            <select id="monthSelect" class="border rounded px-2 py-1 text-sm sm:px-3 sm:py-1">
                                 <option value="0">January</option>
                                 <option value="1">February</option>
                                 <option value="2">March</option>
@@ -181,129 +216,131 @@
                                 <option value="10">November</option>
                                 <option value="11">December</option>
                             </select>
-                            <button id="prevMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <button id="nextMonth" class="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
+                            <div class="flex gap-1">
+                                <button id="prevMonth" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-sm">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button id="nextMonth" class="bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-sm">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-4 grid grid-cols-7 gap-2">
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Sun</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Mon</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Tue</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Wed</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Thu</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Fri</div>
-                        <div class="text-center py-2 text-sm font-medium text-gray-500">Sat</div>
+                    <div class="mb-3 sm:mb-4 grid grid-cols-7 gap-1 sm:gap-2">
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Sun</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Mon</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Tue</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Wed</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Thu</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Fri</div>
+                        <div class="text-center py-1 sm:py-2 text-xs sm:text-sm font-medium text-gray-500">Sat</div>
                     </div>
 
-                    <div id="calendarGrid" class="grid grid-cols-7 gap-2">
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-2">
                         <!-- Calendar will be generated here by JavaScript -->
                     </div>
 
-                    <div class="mt-6 flex flex-wrap gap-3">
+                    <div class="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
                         <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-blue-500 mr-2"></div>
-                            <span class="text-sm">Shift Day</span>
+                            <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-blue-500 mr-1 sm:mr-2"></div>
+                            <span class="text-xs sm:text-sm">Shift Day</span>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-red-500 mr-2"></div>
-                            <span class="text-sm">Holiday</span>
+                            <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-red-500 mr-1 sm:mr-2"></div>
+                            <span class="text-xs sm:text-sm">Holiday</span>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-gray-200 mr-2"></div>
-                            <span class="text-sm">Weekend</span>
+                            <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-gray-200 mr-1 sm:mr-2"></div>
+                            <span class="text-xs sm:text-sm">Weekend</span>
                         </div>
                         <div class="flex items-center">
-                            <div class="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></div>
-                            <span class="text-sm">Regular Day</span>
+                            <div class="w-3 h-3 sm:w-4 sm:h-4 rounded-full bg-white border border-gray-300 mr-1 sm:mr-2"></div>
+                            <span class="text-xs sm:text-sm">Regular Day</span>
                         </div>
                     </div>
 
-                    <div class="mt-6 flex space-x-3 flex-wrap gap-3">
-                        <button id="clearMonthBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg">
-                            <i class="fas fa-eraser mr-2"></i> Clear Month
+                    <div class="mt-4 sm:mt-6 flex flex-wrap gap-2 sm:gap-3">
+                        <button id="clearMonthBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
+                            <i class="fas fa-eraser mr-1 sm:mr-2"></i> Clear Month
                         </button>
-                        <button id="saveChangesBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                            <i class="fas fa-save mr-2"></i> Save Changes
+                        <button id="saveChangesBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base">
+                            <i class="fas fa-save mr-1 sm:mr-2"></i> Save Changes
                         </button>
                     </div>
                 </div>
 
                 <!-- Summary Section -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-6">Monthly Summary</h2>
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">Monthly Summary</h2>
                     
-                    <div class="mb-6">
-                        <h3 class="font-medium text-gray-700 mb-2">Selected Month</h3>
-                        <div id="monthSummary" class="bg-blue-50 p-4 rounded-lg">
-                            <p class="text-lg font-semibold text-blue-800" id="currentMonthDisplay">January 2025</p>
-                            <div class="grid grid-cols-2 gap-4 mt-3">
+                    <div class="mb-4 sm:mb-6">
+                        <h3 class="font-medium text-gray-700 mb-2 text-sm sm:text-base">Selected Month</h3>
+                        <div id="monthSummary" class="bg-blue-50 p-3 sm:p-4 rounded-lg">
+                            <p class="text-base sm:text-lg font-semibold text-blue-800" id="currentMonthDisplay">January 2025</p>
+                            <div class="grid grid-cols-2 gap-3 sm:gap-4 mt-3">
                                 <div>
-                                    <p class="text-sm text-gray-500">Shift Days</p>
-                                    <p class="font-bold" id="shiftDaysCount">0</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">Shift Days</p>
+                                    <p class="font-bold text-sm sm:text-base" id="shiftDaysCount">0</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Holidays</p>
-                                    <p class="font-bold" id="holidaysCount">0</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">Holidays</p>
+                                    <p class="font-bold text-sm sm:text-base" id="holidaysCount">0</p>
                                 </div>
                                 <div class="col-span-2">
-                                    <p class="text-sm text-gray-500">Base Salary (SEK)</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">Base Salary (SEK)</p>
                                     <input id="baseSalaryInput" type="number" value="1000" min="0" step="1000" 
-                                           class="font-bold text-lg w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none">
+                                           class="font-bold text-base sm:text-lg w-full border-b border-gray-300 focus:border-blue-500 focus:outline-none">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-6">
-                        <h3 class="font-medium text-gray-700 mb-2">Hours Breakdown</h3>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Hourly Rate 1 (Mon-Fri 18-24)</span>
-                                <span class="font-medium" id="rate1Hours">0</span>
+                    <div class="mb-4 sm:mb-6">
+                        <h3 class="font-medium text-gray-700 mb-2 text-sm sm:text-base">Hours Breakdown</h3>
+                        <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Hourly Rate 1 (Mon-Fri 18-24)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate1Hours">0</span>
                             </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Hourly Rate 2 (Mon-Sat 00-07)</span>
-                                <span class="font-medium" id="rate2Hours">0</span>
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Hourly Rate 2 (Mon-Sat 00-07)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate2Hours">0</span>
                             </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Hourly Rate 3 (Sat 07-Sun 24)</span>
-                                <span class="font-medium" id="rate3Hours">0</span>
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Hourly Rate 3 (Sat 07-Sun 24)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate3Hours">0</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-sm">Holiday Hours</span>
-                                <span class="font-medium" id="holidayHours">0</span>
+                                <span class="text-xs sm:text-sm">Holiday Hours</span>
+                                <span class="font-medium text-xs sm:text-sm" id="holidayHours">0</span>
                             </div>
                         </div>
                     </div>
 
                     <div>
-                        <h3 class="font-medium text-gray-700 mb-2">Gross compensation (SEK)</h3>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Pay Rate 1 (/600)</span>
-                                <span class="font-medium" id="rate1Pay">0 SEK</span>
+                        <h3 class="font-medium text-gray-700 mb-2 text-sm sm:text-base">Gross compensation (SEK)</h3>
+                        <div class="bg-green-50 p-3 sm:p-4 rounded-lg">
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Pay Rate 1 (/600)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate1Pay">0 SEK</span>
                             </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Pay Rate 2 (/400)</span>
-                                <span class="font-medium" id="rate2Pay">0 SEK</span>
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Pay Rate 2 (/400)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate2Pay">0 SEK</span>
                             </div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-sm">Pay Rate 3 (/300)</span>
-                                <span class="font-medium" id="rate3Pay">0 SEK</span>
+                            <div class="flex justify-between mb-1 sm:mb-2">
+                                <span class="text-xs sm:text-sm">Pay Rate 3 (/300)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="rate3Pay">0 SEK</span>
                             </div>
-                            <div class="flex justify-between mb-3">
-                                <span class="text-sm">Holiday Pay (/150)</span>
-                                <span class="font-medium" id="holidayPay">0 SEK</span>
+                            <div class="flex justify-between mb-2 sm:mb-3">
+                                <span class="text-xs sm:text-sm">Holiday Pay (/150)</span>
+                                <span class="font-medium text-xs sm:text-sm" id="holidayPay">0 SEK</span>
                             </div>
-                            <div class="border-t pt-3">
+                            <div class="border-t pt-2 sm:pt-3">
                                 <div class="flex justify-between">
-                                    <span class="font-semibold">Total</span>
-                                    <span class="font-bold text-green-700" id="totalPay">0 SEK</span>
+                                    <span class="font-semibold text-xs sm:text-sm">Total</span>
+                                    <span class="font-bold text-green-700 text-xs sm:text-sm" id="totalPay">0 SEK</span>
                                 </div>
                             </div>
                         </div>
@@ -314,30 +351,34 @@
 
         <!-- Overview Page -->
         <div id="overview-page" class="page">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Hours Breakdown</h2>
-                    <canvas id="hoursChart" height="300"></canvas>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Monthly Hours Breakdown</h2>
+                    <div class="chart-container">
+                        <canvas id="hoursChart" height="200"></canvas>
+                    </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Gross Compensation</h2>
-                    <canvas id="payChart" height="300"></canvas>
+                <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Monthly Gross Compensation</h2>
+                    <div class="chart-container">
+                        <canvas id="payChart" height="200"></canvas>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Summary</h2>
+            <div class="mt-4 sm:mt-8 bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Monthly Summary</h2>
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
                             </tr>
                         </thead>
                         <tbody id="overviewTableBody" class="bg-white divide-y divide-gray-200">
@@ -350,29 +391,29 @@
 
         <!-- Data Export Page -->
         <div id="export-page" class="page">
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-800 mb-4">Export to Payroll</h2>
-                <div class="flex flex-wrap gap-3">
-                    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center">
-                        <i class="fas fa-file-export mr-2"></i> Export CSV Data
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Export to Payroll</h2>
+                <div class="flex flex-wrap gap-2 sm:gap-3">
+                    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg flex items-center text-sm sm:text-base">
+                        <i class="fas fa-file-export mr-1 sm:mr-2"></i> Export CSV Data
                     </button>
                 </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Detailed Shift Data</h2>
+                <div class="p-4 sm:p-6">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Detailed Shift Data</h2>
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-xs sm:text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Shift Days</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 1</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 2</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Hourly Rate 3</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Holiday Hours</th>
+                                    <th class="px-2 sm:px-4 py-2 sm:py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Gross Pay (SEK)</th>
                                 </tr>
                             </thead>
                             <tbody id="dataTableBody" class="bg-white divide-y divide-gray-200">
@@ -388,47 +429,53 @@
     <!-- Shift Modal -->
     <div id="shiftModal" class="shift-modal hidden">
         <div class="shift-form">
-            <h3 class="text-xl font-bold mb-4">Add Shift Hours</h3>
+            <h3 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Add Shift Hours</h3>
             <div class="font-medium mb-2">
-                <input type="text" id="shiftDate" class="block text-gray-700 mb-2" readonly>
+                <input type="text" id="shiftDate" class="block text-gray-700 mb-2 w-full text-sm sm:text-base" readonly>
             </div>
             
             <div class="mb-4">
-                <label class="font-medium mb-2">Select Shift Template</label>
+                <label class="font-medium mb-2 text-sm sm:text-base">Select Shift Template</label>
                 
                 <div class="template-group">
-                    <h4 class="font-medium mb-2">Option A</h4>
+                    <h4 class="font-medium mb-2 text-sm">Option A</h4>
                     <div class="flex flex-wrap">
                         <div class="template-btn" data-template="18:00-00:00">
-                            <div class="font-medium">Evening Shift</div>
-                            <div class="text-sm">18:00 - 00:00 (6h)</div>
+                            <div class="font-medium text-xs sm:text-sm">Evening Shift</div>
+                            <div class="text-xs">18:00 - 00:00 (6h)</div>
                         </div>
                         <div class="template-btn" data-template="00:00-05:00">
-                            <div class="font-medium">Night Shift</div>
-                            <div class="text-sm">00:00 - 05:00 (5h)</div>
+                            <div class="font-medium text-xs sm:text-sm">Night Shift</div>
+                            <div class="text-xs">00:00 - 05:00 (5h)</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="template-group">
-                    <h4 class="font-medium mb-2">Option B</h4>
+                    <h4 class="font-medium mb-2 text-sm">Option B</h4>
                     <div class="flex flex-wrap">
                         <div class="template-btn" data-template="19:00-00:00">
-                            <div class="font-medium">Evening Shift</div>
-                            <div class="text-sm">19:00 - 00:00 (5h)</div>
+                            <div class="font-medium text-xs sm:text-sm">Evening Shift</div>
+                            <div class="text-xs">19:00 - 00:00 (5h)</div>
                         </div>
                         <div class="template-btn" data-template="00:00-06:00">
-                            <div class="font-medium">Night Shift</div>
-                            <div class="text-sm">00:00 - 06:00 (6h)</div>
+                            <div class="font-medium text-xs sm:text-sm">Night Shift</div>
+                            <div class="text-xs">00:00 - 06:00 (6h)</div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <div class="flex justify-end space-x-3 mt-4">
-                <button id="clearShift" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">Clear All Shifts</button>
-                <button id="cancelShift" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg">Cancel</button>
-                <button id="saveShift" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Save Shifts</button>
+            <div class="flex justify-end space-x-2 sm:space-x-3 mt-4">
+                <button id="clearShift" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm">
+                    Clear All
+                </button>
+                <button id="cancelShift" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm">
+                    Cancel
+                </button>
+                <button id="saveShift" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm">
+                    Save
+                </button>
             </div>
         </div>
     </div>
@@ -697,7 +744,7 @@
                     // Add empty cells for days before the first day of the month
                     for (let i = 0; i < firstDay; i++) {
                         const emptyCell = document.createElement('div');
-                        emptyCell.className = 'h-16';
+                        emptyCell.className = 'h-10 sm:h-16';
                         calendarGrid.appendChild(emptyCell);
                     }
                     
@@ -710,7 +757,7 @@
                         const isHoliday = this.isHolidayDate(year, monthNum, day);
                         
                         const dayElement = document.createElement('div');
-                        dayElement.className = 'calendar-day h-16 flex flex-col items-center justify-center rounded-lg border';
+                        dayElement.className = 'calendar-day h-10 sm:h-16 flex flex-col items-center justify-center rounded-lg border';
                         
                         if (isShiftDay) {
                             dayElement.classList.add('shift-day');
@@ -721,8 +768,8 @@
                         }
                         
                         dayElement.innerHTML = `
-                            <span class="font-medium">${day}</span>
-                            <span class="text-xs mt-1">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}</span>
+                            <span class="font-medium text-xs sm:text-base">${day}</span>
+                            <span class="text-xs mt-0 sm:mt-1 hidden sm:block">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dayOfWeek]}</span>
                         `;
                         
                         // Add tooltip
@@ -1223,13 +1270,13 @@
                         const row = document.createElement('tr');
                         row.className = 'fade-in';
                         row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap font-medium">${monthData.month}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.shiftDays}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate1Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap font-medium">${monthData.month}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.shiftDays}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate1Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate2Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate3Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.holidayHours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -1244,13 +1291,13 @@
                         const row = document.createElement('tr');
                         row.className = 'fade-in';
                         row.innerHTML = `
-                            <td class="px-6 py-4 whitespace-nowrap font-medium">${monthData.month}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.shiftDays}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate1Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate2Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.rate3Hours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">${monthData.holidayHours}</td>
-                            <td class="px-6 py-4 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap font-medium">${monthData.month}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.shiftDays}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate1Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate2Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.rate3Hours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">${monthData.holidayHours}</td>
+                            <td class="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap font-semibold">${this.formatSEKPlain(monthData.totalPay)} SEK</td>
                         `;
                         tableBody.appendChild(row);
                     });
@@ -1264,9 +1311,15 @@
                         data: this.getChartData(),
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -1286,13 +1339,26 @@
                             scales: {
                                 x: {
                                     stacked: true,
+                                    ticks: {
+                                        font: {
+                                            size: 10
+                                        }
+                                    }
                                 },
                                 y: {
                                     stacked: true,
                                     beginAtZero: true,
                                     title: {
                                         display: true,
-                                        text: 'Hours'
+                                        text: 'Hours',
+                                        font: {
+                                            size: 12
+                                        }
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 10
+                                        }
                                     }
                                 }
                             }
@@ -1306,9 +1372,15 @@
                         data: this.getChartData(),
                         options: {
                             responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: 'top',
+                                    labels: {
+                                        font: {
+                                            size: 12
+                                        }
+                                    }
                                 },
                                 tooltip: {
                                     callbacks: {
@@ -1326,17 +1398,28 @@
                             scales: {
                                 x: {
                                     stacked: true,
+                                    ticks: {
+                                        font: {
+                                            size: 10
+                                        }
+                                    }
                                 },
                                 y: {
                                     stacked: true,
                                     beginAtZero: true,
                                     title: {
                                         display: true,
-                                        text: 'SEK'
+                                        text: 'SEK',
+                                        font: {
+                                            size: 12
+                                        }
                                     },
                                     ticks: {
                                         callback: (value) => {
                                             return this.formatSEK(value);
+                                        },
+                                        font: {
+                                            size: 10
                                         }
                                     }
                                 }
@@ -1347,7 +1430,7 @@
 
                 getChartData: function() {
                     return {
-                        labels: months.map(m => m.name),
+                        labels: months.map(m => m.name.substring(0, 3)),
                         datasets: [
                             {
                                 label: 'Hourly Rate 1 (/600)',
@@ -1416,7 +1499,7 @@
                 showSuccessMessage: function(message) {
                     const saveBtn = document.getElementById('saveChangesBtn');
                     const originalText = saveBtn.innerHTML;
-                    saveBtn.innerHTML = `<i class="fas fa-check mr-2"></i> ${message}`;
+                    saveBtn.innerHTML = `<i class="fas fa-check mr-1 sm:mr-2"></i> ${message}`;
                     saveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
                     saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                     
@@ -1435,5 +1518,4 @@
         });
     </script>
 </body>
-</html>
 </html>
