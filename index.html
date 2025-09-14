@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shift Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -266,7 +266,7 @@
         <header class="mb-6 sm:mb-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800">Shift Work Tracker Dashboard</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800">Shift Work Tracker</h1>
                 </div>
             </div>
         </header>
@@ -294,6 +294,7 @@
                                 <option value="2027">2027</option>
                                 <option value="2028">2028</option>
                                 <option value="2029">2029</option>
+								<option value="2030">2030</option>
                             </select>
                             <select id="monthSelect" class="border rounded px-2 py-1 text-sm sm:px-3 sm:py-1">
                                 <option value="0">January</option>
@@ -492,7 +493,7 @@
                     </button>
                     <label class="file-upload-label">
                         <i class="fas fa-file-import mr-1 sm:mr-2"></i> Import ICS
-                        <input type="file" id="icsFileInput" class="file-upload-input" accept=".ics">
+                        <input type="file" id="icsFileInput" class="file-upload-input" accept=".ics" multiple>
                     </label>
                     <button id="clearAllBtn" class="clear-all-btn">
                         <i class="fas fa-trash-alt mr-1 sm:mr-2"></i> Clear All Data
@@ -644,13 +645,10 @@
                     this.updateSummary(currentYear, currentMonth);
                     this.renderDataTable();
                     this.initCharts();
-                    
-                    // Update current year display
-                    document.getElementById('current-year').textContent = currentYear;
                 },
 
                 loadFromLocalStorage: function() {
-                    // Load schedule data
+                    // Load schedule data from localStorage
                     const savedSchedule = localStorage.getItem('shiftSchedule');
                     if (savedSchedule) {
                         schedule = JSON.parse(savedSchedule);
@@ -658,7 +656,7 @@
                         this.initializeSchedule();
                     }
                     
-                    // Load base salary
+                    // Load base salary from localStorage
                     const savedBaseSalary = localStorage.getItem('baseSalary');
                     if (savedBaseSalary) {
                         baseSalary = parseFloat(savedBaseSalary);
@@ -667,12 +665,14 @@
                 },
 
                 saveToLocalStorage: function() {
+                    // Save schedule and base salary to localStorage
                     localStorage.setItem('shiftSchedule', JSON.stringify(schedule));
                     localStorage.setItem('baseSalary', baseSalary.toString());
                 },
 
                 initializeSchedule: function() {
-                    const years = [2025, 2026, 2027, 2028, 2029];
+                    // Initialize schedule for all years and months
+                    const years = [2025, 2026, 2027, 2028, 2029, 2030];
                     schedule = {};
                     
                     years.forEach(year => {
@@ -684,7 +684,7 @@
                 },
 
                 setupEventListeners: function() {
-                    // Navigation
+                    // Navigation event listeners
                     document.querySelectorAll('.nav-link').forEach(link => {
                         link.addEventListener('click', (e) => {
                             const page = e.target.getAttribute('data-page');
@@ -692,6 +692,7 @@
                         });
                     });
 
+                    // Month and year selection event listeners
                     document.getElementById('monthSelect').addEventListener('change', (e) => {
                         currentMonth = parseInt(e.target.value);
                         this.renderCalendar(currentYear, currentMonth);
@@ -712,6 +713,7 @@
                         }
                     });
                     
+                    // Previous and next month navigation
                     document.getElementById('prevMonth').addEventListener('click', () => {
                         if (currentMonth > 0) {
                             currentMonth--;
@@ -746,14 +748,17 @@
                         }
                     });
                     
+                    // Export data button
                     document.getElementById('exportBtn').addEventListener('click', () => {
                         this.exportData();
                     });
                     
+                    // Clear all data button
                     document.getElementById('clearAllBtn').addEventListener('click', () => {
                         this.clearAllData();
                     });
                     
+                    // Base salary input change
                     document.getElementById('baseSalaryInput').addEventListener('change', (e) => {
                         baseSalary = parseFloat(e.target.value) || 1000;
                         this.updateAllCalculations();
@@ -766,6 +771,7 @@
                         this.saveToLocalStorage();
                     });
                     
+                    // Clear month button
                     document.getElementById('clearMonthBtn').addEventListener('click', () => {
                         if (confirm('Are you sure you want to clear all shift days for this month?')) {
                             schedule[currentYear][currentMonth] = {};
@@ -780,20 +786,20 @@
                         }
                     });
                     
+                    // Save changes button
                     document.getElementById('saveChangesBtn').addEventListener('click', () => {
                         this.saveToLocalStorage();
                         this.showSuccessMessage('Changes saved successfully!');
                     });
                     
-                    // ICS File Import
+                    // ICS File Import - Updated to handle multiple files
                     document.getElementById('icsFileInput').addEventListener('change', (e) => {
-                        const file = e.target.files[0];
-                        if (file && file.name.endsWith('.ics')) {
-                            this.importICSFile(file);
-                        } else {
-                            alert('Please select a valid .ics file');
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            // Process all selected files
+                            this.importICSFiles(files);
                         }
-                        // Reset input to allow selecting the same file again
+                        // Reset input to allow selecting the same files again
                         e.target.value = '';
                     });
                     
@@ -849,9 +855,12 @@
 
                 clearAllData: function() {
                     if (confirm('Are you sure you want to clear ALL shift data and reset base salary? This action cannot be undone.')) {
+                        // Reset the schedule and base salary to initial values
                         this.initializeSchedule();
                         baseSalary = 1000;
                         document.getElementById('baseSalaryInput').value = baseSalary;
+                        
+                        // Re-render all views with the reset data
                         this.renderCalendar(currentYear, currentMonth);
                         this.updateSummary(currentYear, currentMonth);
                         this.renderDataTable();
@@ -859,18 +868,93 @@
                             this.updateCharts();
                             this.renderOverviewTable();
                         }
+                        
+                        // Save the reset data to localStorage
                         this.saveToLocalStorage();
+                        
+                        // Show success message
                         this.showClearAllSuccessMessage('All data cleared successfully!');
+                        
+                        // Re-attach event listeners for ICS import (in case they were lost)
+                        document.getElementById('icsFileInput').addEventListener('change', (e) => {
+                            const files = e.target.files;
+                            if (files && files.length > 0) {
+                                this.importICSFiles(files);
+                            }
+                            e.target.value = '';
+                        });
                     }
                 },
 
-                importICSFile: function(file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const content = e.target.result;
-                        this.parseICS(content);
-                    };
-                    reader.readAsText(file);
+                // Updated to handle multiple ICS files
+                importICSFiles: function(files) {
+                    // Track processing state
+                    let importedEvents = 0;
+                    let processedFiles = 0;
+                    const totalFiles = files.length;
+                    const invalidFiles = [];
+                    
+                    // Process each file
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        
+                        // Validate file type
+                        if (!file.name.endsWith('.ics')) {
+                            invalidFiles.push(file.name);
+                            processedFiles++;
+                            continue;
+                        }
+                        
+                        // Read and process file
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const content = e.target.result;
+                            const eventsInFile = this.parseICS(content);
+                            importedEvents += eventsInFile;
+                            processedFiles++;
+                            
+                            // After processing all files, update UI
+                            if (processedFiles === totalFiles) {
+                                if (invalidFiles.length > 0) {
+                                    alert(`The following files were not processed (invalid format): ${invalidFiles.join(', ')}`);
+                                }
+                                
+                                if (importedEvents > 0) {
+                                    this.renderCalendar(currentYear, currentMonth);
+                                    this.updateSummary(currentYear, currentMonth);
+                                    this.renderDataTable();
+                                    if (currentPage === 'overview') {
+                                        this.updateCharts();
+                                        this.renderOverviewTable();
+                                    }
+                                    this.saveToLocalStorage();
+                                    this.showImportSuccessMessage(`Imported ${importedEvents} shift(s) from ${totalFiles - invalidFiles.length} valid file(s) successfully!`);
+                                } else if (invalidFiles.length === 0) {
+                                    alert('No valid shift events found in the selected ICS file(s).');
+                                }
+                            }
+                        };
+                        reader.onerror = () => {
+                            processedFiles++;
+                            alert(`Error reading file: ${file.name}`);
+                            
+                            // Check if all files are processed
+                            if (processedFiles === totalFiles) {
+                                if (importedEvents > 0) {
+                                    this.renderCalendar(currentYear, currentMonth);
+                                    this.updateSummary(currentYear, currentMonth);
+                                    this.renderDataTable();
+                                    if (currentPage === 'overview') {
+                                        this.updateCharts();
+                                        this.renderOverviewTable();
+                                    }
+                                    this.saveToLocalStorage();
+                                    this.showImportSuccessMessage(`Imported ${importedEvents} shift(s) from ${totalFiles - invalidFiles.length} valid file(s) successfully!`);
+                                }
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
                 },
 
                 parseICS: function(content) {
@@ -899,22 +983,10 @@
                             }
                         }
                         
-                        if (importedEvents > 0) {
-                            this.renderCalendar(currentYear, currentMonth);
-                            this.updateSummary(currentYear, currentMonth);
-                            this.renderDataTable();
-                            if (currentPage === 'overview') {
-                                this.updateCharts();
-                                this.renderOverviewTable();
-                            }
-                            this.saveToLocalStorage();
-                            this.showImportSuccessMessage(`Imported ${importedEvents} shift(s) successfully!`);
-                        } else {
-                            alert('No valid shift events found in the ICS file.');
-                        }
+                        return importedEvents;
                     } catch (error) {
                         console.error('Error parsing ICS file:', error);
-                        alert('Error parsing ICS file. Please check the file format.');
+                        return 0;
                     }
                 },
 
