@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"1.0">
     <title>Shift Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -89,6 +89,39 @@
             .chart-container {
                 min-height: 250px;
             }
+            .mobile-hidden {
+                display: none;
+            }
+            .mobile-full-width {
+                width: 100%;
+            }
+            .mobile-stack {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .mobile-center {
+                text-align: center;
+            }
+            .mobile-py {
+                padding-top: 0.5rem;
+                padding-bottom: 0.5rem;
+            }
+            .mobile-px {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            .mobile-mb {
+                margin-bottom: 0.5rem;
+            }
+            .mobile-mt {
+                margin-top: 0.5rem;
+            }
+            .mobile-text-sm {
+                font-size: 0.875rem;
+            }
+            .mobile-text-xs {
+                font-size: 0.75rem;
+            }
         }
         .shift-modal {
             position: fixed;
@@ -159,9 +192,70 @@
         .mobile-hidden {
             display: none;
         }
-        @media (min-width: 768px) {
+        @media (min-width: 769px) {
             .mobile-hidden {
                 display: block;
+            }
+        }
+        .file-upload-label {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.875rem;
+        }
+        .file-upload-label:hover {
+            background-color: #2563eb;
+        }
+        .file-upload-input {
+            display: none;
+        }
+        .export-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.875rem;
+            border: none;
+        }
+        .export-btn:hover {
+            background-color: #2563eb;
+        }
+        .clear-all-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #ef4444;
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-size: 0.875rem;
+            border: none;
+        }
+        .clear-all-btn:hover {
+            background-color: #dc2626;
+        }
+        .success-btn {
+            background-color: #10b981 !important;
+            transition: background-color 0.3s;
+        }
+        .success-btn:hover {
+            background-color: #059669 !important;
+        }
+        .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        @media (min-width: 769px) {
+            .mobile-grid {
+                grid-template-columns: repeat(4, 1fr);
             }
         }
     </style>
@@ -172,7 +266,7 @@
         <header class="mb-6 sm:mb-8">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800">Shift Tracker Dashboard</h1>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-blue-800">Shift Work Tracker Dashboard</h1>
                 </div>
             </div>
         </header>
@@ -182,7 +276,7 @@
             <div class="flex flex-wrap gap-1 sm:gap-2 bg-white rounded-lg shadow p-1 sm:p-2">
                 <div class="nav-link active text-sm sm:text-base" data-page="dashboard">Dashboard</div>
                 <div class="nav-link text-sm sm:text-base" data-page="overview">Overview</div>
-                <div class="nav-link text-sm sm:text-base" data-page="export">Data Export</div>
+                <div class="nav-link text-sm sm:text-base" data-page="export">Data</div>
             </div>
         </div>
 
@@ -391,10 +485,17 @@
         <!-- Data Export Page -->
         <div id="export-page" class="page">
             <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Export to Payroll</h2>
+                <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-3 sm:mb-4">Import/Export</h2>
                 <div class="flex flex-wrap gap-2 sm:gap-3">
-                    <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg flex items-center text-sm sm:text-base">
-                        <i class="fas fa-file-export mr-1 sm:mr-2"></i> Export CSV Data
+                    <button id="exportBtn" class="export-btn">
+                        <i class="fas fa-file-export mr-1 sm:mr-2"></i> Export CSV
+                    </button>
+                    <label class="file-upload-label">
+                        <i class="fas fa-file-import mr-1 sm:mr-2"></i> Import ICS
+                        <input type="file" id="icsFileInput" class="file-upload-input" accept=".ics">
+                    </label>
+                    <button id="clearAllBtn" class="clear-all-btn">
+                        <i class="fas fa-trash-alt mr-1 sm:mr-2"></i> Clear All Data
                     </button>
                 </div>
             </div>
@@ -649,6 +750,10 @@
                         this.exportData();
                     });
                     
+                    document.getElementById('clearAllBtn').addEventListener('click', () => {
+                        this.clearAllData();
+                    });
+                    
                     document.getElementById('baseSalaryInput').addEventListener('change', (e) => {
                         baseSalary = parseFloat(e.target.value) || 1000;
                         this.updateAllCalculations();
@@ -678,6 +783,18 @@
                     document.getElementById('saveChangesBtn').addEventListener('click', () => {
                         this.saveToLocalStorage();
                         this.showSuccessMessage('Changes saved successfully!');
+                    });
+                    
+                    // ICS File Import
+                    document.getElementById('icsFileInput').addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file && file.name.endsWith('.ics')) {
+                            this.importICSFile(file);
+                        } else {
+                            alert('Please select a valid .ics file');
+                        }
+                        // Reset input to allow selecting the same file again
+                        e.target.value = '';
                     });
                     
                     // Modal event listeners
@@ -728,6 +845,115 @@
                     } else if (page === 'export') {
                         this.renderDataTable();
                     }
+                },
+
+                clearAllData: function() {
+                    if (confirm('Are you sure you want to clear ALL shift data and reset base salary? This action cannot be undone.')) {
+                        this.initializeSchedule();
+                        baseSalary = 1000;
+                        document.getElementById('baseSalaryInput').value = baseSalary;
+                        this.renderCalendar(currentYear, currentMonth);
+                        this.updateSummary(currentYear, currentMonth);
+                        this.renderDataTable();
+                        if (currentPage === 'overview') {
+                            this.updateCharts();
+                            this.renderOverviewTable();
+                        }
+                        this.saveToLocalStorage();
+                        this.showClearAllSuccessMessage('All data cleared successfully!');
+                    }
+                },
+
+                importICSFile: function(file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const content = e.target.result;
+                        this.parseICS(content);
+                    };
+                    reader.readAsText(file);
+                },
+
+                parseICS: function(content) {
+                    try {
+                        const lines = content.split('\n');
+                        let inEvent = false;
+                        let currentEvent = {};
+                        let importedEvents = 0;
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i].trim();
+                            
+                            if (line === 'BEGIN:VEVENT') {
+                                inEvent = true;
+                                currentEvent = {};
+                            } else if (line === 'END:VEVENT') {
+                                inEvent = false;
+                                if (currentEvent.DTSTART && currentEvent.DTEND) {
+                                    this.addShiftFromICS(currentEvent);
+                                    importedEvents++;
+                                }
+                            } else if (inEvent && line.startsWith('DTSTART:')) {
+                                currentEvent.DTSTART = line.substring(8);
+                            } else if (inEvent && line.startsWith('DTEND:')) {
+                                currentEvent.DTEND = line.substring(6);
+                            }
+                        }
+                        
+                        if (importedEvents > 0) {
+                            this.renderCalendar(currentYear, currentMonth);
+                            this.updateSummary(currentYear, currentMonth);
+                            this.renderDataTable();
+                            if (currentPage === 'overview') {
+                                this.updateCharts();
+                                this.renderOverviewTable();
+                            }
+                            this.saveToLocalStorage();
+                            this.showImportSuccessMessage(`Imported ${importedEvents} shift(s) successfully!`);
+                        } else {
+                            alert('No valid shift events found in the ICS file.');
+                        }
+                    } catch (error) {
+                        console.error('Error parsing ICS file:', error);
+                        alert('Error parsing ICS file. Please check the file format.');
+                    }
+                },
+
+                addShiftFromICS: function(event) {
+                    // Parse DTSTART (e.g., 20250708T180000)
+                    const startMatch = event.DTSTART.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
+                    if (!startMatch) return;
+                    
+                    const [, startYear, startMonth, startDay, startHour, startMinute] = startMatch;
+                    const year = parseInt(startYear);
+                    const month = parseInt(startMonth) - 1; // JS months are 0-indexed
+                    const day = parseInt(startDay);
+                    const startStr = `${startHour}:${startMinute}`;
+                    
+                    // Parse DTEND (e.g., 20250709T050000)
+                    const endMatch = event.DTEND.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})$/);
+                    if (!endMatch) return;
+                    
+                    const [, endYear, endMonth, endDay, endHour, endMinute] = endMatch;
+                    const endStr = `${endHour}:${endMinute}`;
+                    
+                    // Initialize year in schedule if needed
+                    if (!schedule[year]) {
+                        schedule[year] = {};
+                        months.forEach(m => {
+                            schedule[year][m.num] = {};
+                        });
+                    }
+                    
+                    // Initialize month in schedule if needed
+                    if (!schedule[year][month]) {
+                        schedule[year][month] = {};
+                    }
+                    
+                    // Add shift to schedule
+                    schedule[year][month][day] = {
+                        start: startStr,
+                        end: endStr
+                    };
                 },
 
                 renderCalendar: function(year, monthNum) {
@@ -1491,21 +1717,63 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    // Show success message
-                    this.showSuccessMessage('Data exported successfully!');
+                    // Show success message and change button color
+                    this.showExportSuccessMessage('Data exported successfully!');
                 },
 
                 showSuccessMessage: function(message) {
                     const saveBtn = document.getElementById('saveChangesBtn');
                     const originalText = saveBtn.innerHTML;
+                    const originalClass = saveBtn.className;
+                    
                     saveBtn.innerHTML = `<i class="fas fa-check mr-1 sm:mr-2"></i> ${message}`;
-                    saveBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    saveBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    saveBtn.className = 'bg-green-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg text-sm sm:text-base';
                     
                     setTimeout(() => {
                         saveBtn.innerHTML = originalText;
-                        saveBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                        saveBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        saveBtn.className = originalClass;
+                    }, 2000);
+                },
+
+                showExportSuccessMessage: function(message) {
+                    const exportBtn = document.getElementById('exportBtn');
+                    const originalText = exportBtn.innerHTML;
+                    const originalClass = exportBtn.className;
+                    
+                    exportBtn.innerHTML = `<i class="fas fa-check mr-1 sm:mr-2"></i> ${message}`;
+                    exportBtn.className = 'success-btn text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg flex items-center text-sm sm:text-base';
+                    
+                    setTimeout(() => {
+                        exportBtn.innerHTML = originalText;
+                        exportBtn.className = originalClass;
+                    }, 2000);
+                },
+
+                showImportSuccessMessage: function(message) {
+                    const importLabel = document.querySelector('.file-upload-label');
+                    const originalText = importLabel.innerHTML;
+                    const originalClass = importLabel.className;
+                    
+                    importLabel.innerHTML = `<i class="fas fa-check mr-1 sm:mr-2"></i> ${message}`;
+                    importLabel.className = 'success-btn text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg flex items-center text-sm sm:text-base';
+                    
+                    setTimeout(() => {
+                        importLabel.innerHTML = originalText;
+                        importLabel.className = originalClass;
+                    }, 2000);
+                },
+
+                showClearAllSuccessMessage: function(message) {
+                    const clearAllBtn = document.getElementById('clearAllBtn');
+                    const originalText = clearAllBtn.innerHTML;
+                    const originalClass = clearAllBtn.className;
+                    
+                    clearAllBtn.innerHTML = `<i class="fas fa-check mr-1 sm:mr-2"></i> ${message}`;
+                    clearAllBtn.className = 'success-btn text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg flex items-center text-sm sm:text-base';
+                    
+                    setTimeout(() => {
+                        clearAllBtn.innerHTML = originalText;
+                        clearAllBtn.className = originalClass;
                     }, 2000);
                 }
             };
